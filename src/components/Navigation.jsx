@@ -3,7 +3,6 @@ import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
-  User,
   Heart,
   Film,
   Home,
@@ -11,8 +10,6 @@ import {
   Menu,
   X,
   LogIn,
-  ChevronDown,
-  Settings,
   LogOut,
 } from 'lucide-react';
 
@@ -29,8 +26,7 @@ export default function Navigation() {
     setSection,
     favorites,
     user,
-    setUser,
-    showAuthModal,
+    signOut,
     setShowAuthModal,
   } = useStore();
 
@@ -100,10 +96,10 @@ export default function Navigation() {
     });
   }, []);
 
-  const handleLogout = useCallback(() => {
-    setUser(null);
+  const handleLogout = useCallback(async () => {
+    await signOut();
     setUserMenuOpen(false);
-  }, [setUser]);
+  }, [signOut]);
 
   return (
     <>
@@ -260,14 +256,6 @@ export default function Navigation() {
                         <p className="font-mono text-xs text-white/90 truncate">{user.name || user.email}</p>
                       </div>
                       <div className="py-1">
-                        <button className="w-full flex items-center gap-2 px-4 py-2 text-xs font-mono text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                          <User size={14} />
-                          <span>Profile</span>
-                        </button>
-                        <button className="w-full flex items-center gap-2 px-4 py-2 text-xs font-mono text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                          <Settings size={14} />
-                          <span>Settings</span>
-                        </button>
                         <button
                           onClick={handleLogout}
                           className="w-full flex items-center gap-2 px-4 py-2 text-xs font-mono text-red-400/70 hover:text-red-400 hover:bg-red-400/5 transition-colors"

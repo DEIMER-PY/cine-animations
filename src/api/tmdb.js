@@ -17,9 +17,9 @@ async function apiFetch(endpoint, params = {}) {
 }
 
 export const TMDB = {
-  poster: (path, size = 'w500') => `${IMG_BASE}/${size}${path}`,
-  backdrop: (path, size = 'original') => `${IMG_BASE}/${size}${path}`,
-  profile: (path, size = 'w185') => `${IMG_BASE}/${size}${path}`,
+  poster: (path, size = 'w500') => path?.startsWith('http') ? path : `${IMG_BASE}/${size}${path}`,
+  backdrop: (path, size = 'original') => path?.startsWith('http') ? path : `${IMG_BASE}/${size}${path}`,
+  profile: (path, size = 'w185') => path?.startsWith('http') ? path : `${IMG_BASE}/${size}${path}`,
 
   async fetchTrending() {
     const data = await apiFetch('/trending/movie/week');
