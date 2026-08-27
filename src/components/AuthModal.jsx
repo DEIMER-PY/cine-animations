@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
+import { TextScramble } from './animations';
 
 const Particle = ({ delay }) => {
   const size = Math.random() * 3 + 1;
@@ -270,7 +271,7 @@ export default function AuthModal({ isOpen, onClose }) {
                 </motion.div>
 
                 <h2 className="font-display text-3xl tracking-wider text-white mb-2">
-                  {mode === 'login' ? 'WELCOME BACK' : 'JOIN THE CINEMA'}
+                  <TextScramble text={mode === 'login' ? 'WELCOME BACK' : 'JOIN THE CINEMA'} delay={0.4} duration={0.9} />
                 </h2>
                 <p className="font-mono text-[11px] text-white/30 tracking-wider">
                   {mode === 'login'

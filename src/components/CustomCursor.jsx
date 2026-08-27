@@ -12,6 +12,10 @@ export default function CustomCursor() {
   const rafRef = useRef(null);
 
   useEffect(() => {
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!finePointer || reducedMotion) return undefined;
+
     const handleMouseMove = (e) => {
       targetRef.current.x = e.clientX;
       targetRef.current.y = e.clientY;
@@ -113,7 +117,7 @@ export default function CustomCursor() {
         style={{ marginLeft: -2, marginTop: -2 }}
       />
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce) {
           .custom-cursor { display: none !important; }
         }
       `}</style>

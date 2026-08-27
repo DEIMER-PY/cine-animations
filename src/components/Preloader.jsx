@@ -1,123 +1,138 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import { useStore } from '../store/useStore';
 import { TMDB } from '../api/tmdb';
+import { scrambleText } from '../lib/animations';
+
+const STATUSES = [
+  [0, 'INITIALIZING PROJECTION'],
+  [24, 'SYNCING THE ARCHIVE'],
+  [52, 'CALIBRATING LIGHT'],
+  [78, 'COMPOSING THE FRAME'],
+  [100, 'PICTURE READY'],
+];
 
 export default function Preloader({ onReady }) {
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('INITIALIZING SYSTEMS');
-  const [visible, setVisible] = useState(true);
   const setPreloaderDone = useStore((s) => s.setPreloaderDone);
   const loadFavorites = useStore((s) => s.loadFavorites);
-  const loadedCount = useRef(0);
-  const totalAssets = useRef(0);
+
+  const rootRef = useRef(null);
+  const centerRef = useRef(null);
+  const counterRef = useRef(null);
+  const barRef = useRef(null);
+  const statusRef = useRef(null);
+  const maskRef = useRef(null);
 
   useEffect(() => {
-    const preloadAssets = async () => {
+    let active = true;
+    let exitTimeline;
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        barRef.current,
+        { scaleX: 0, transformOrigin: 'left center' },
+        { scaleX: 1, duration: 1.1, ease: 'power3.inOut' }
+      );
+      gsap.fromTo(
+        centerRef.current,
+        { opacity: 0, y: 28 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+      );
+    }, rootRef);
+
+    scrambleText(statusRef.current, STATUSES[0][1], { duration: 0.55 });
+
+    const run = async () => {
+      const updateProgress = (value) => {
+        if (!active) return;
+        setProgress(value);
+        gsap.to(counterRef.current, {
+          innerText: value,
+          duration: 0.35,
+          snap: { innerText: 1 },
+          ease: 'power1.out',
+          overwrite: true,
+        });
+      };
+
+      updateProgress(14);
       try {
-        setStatus('CONNECTING TO TMDB DATABASE');
         const movies = await TMDB.fetchTrending();
-        totalAssets.current = movies.length;
-
-        setStatus('RENDERING FRAME BUFFER');
-        const imagePromises = movies
-          .filter((m) => m.poster_path)
-          .map((m) => {
-            return new Promise((resolve) => {
+        updateProgress(38);
+        const imgs = movies.filter((m) => m.poster_path).slice(0, 12);
+        const loadAll = imgs.map(
+          (m) =>
+            new Promise((res) => {
               const img = new Image();
-              img.onload = () => {
-                loadedCount.current++;
-                setProgress(
-                  Math.min(
-                    (loadedCount.current / totalAssets.current) * 100,
-                    100
-                  )
-                );
-                resolve();
-              };
-              img.onerror = () => {
-                loadedCount.current++;
-                setProgress(
-                  Math.min(
-                    (loadedCount.current / totalAssets.current) * 100,
-                    100
-                  )
-                );
-                resolve();
-              };
+              img.onload = img.onerror = res;
               img.src = TMDB.poster(m.poster_path, 'w342');
-            });
-          });
-
-        await Promise.all(imagePromises);
-        setStatus('COMPILING SHADERS');
-        await loadFavorites();
-        setStatus('SCENE READY');
-
-        await new Promise((r) => setTimeout(r, 600));
-        setVisible(false);
-        setPreloaderDone();
-        onReady?.();
-      } catch (err) {
-        console.error('Preloader error:', err);
-        setStatus('FALLBACK MODE ACTIVE');
-        await new Promise((r) => setTimeout(r, 1000));
-        setVisible(false);
-        setPreloaderDone();
-        onReady?.();
+            })
+        );
+        await Promise.all(loadAll).catch(() => {});
+      } catch {
+        updateProgress(58);
       }
+
+      await loadFavorites().catch(() => {});
+      updateProgress(82);
+      await new Promise((resolve) => setTimeout(resolve, 280));
+      updateProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 420));
+
+      if (!active) return;
+      exitTimeline = gsap.timeline({
+        onComplete: () => {
+          setPreloaderDone();
+          onReady?.();
+        },
+      });
+      exitTimeline
+        .to(centerRef.current, { scale: 1.4, opacity: 0, duration: 0.5, ease: 'power2.in' })
+        .to(maskRef.current, { scaleY: 0, transformOrigin: 'top center', duration: 0.75, ease: 'power4.inOut' }, '-=0.15');
     };
 
-    preloadAssets();
-  }, []);
+    run();
 
-  if (!visible) return null;
+    return () => {
+      active = false;
+      exitTimeline?.kill();
+      context.revert();
+    };
+  }, [loadFavorites, onReady, setPreloaderDone]);
 
-  const segments = 40;
-  const filledSegments = Math.floor((progress / 100) * segments);
+  useEffect(() => {
+    const current = STATUSES.reduce(
+      (acc, [thresh, label]) => (progress >= thresh ? [thresh, label] : acc),
+      STATUSES[0]
+    );
+    if (statusRef.current && statusRef.current.textContent !== current[1]) {
+      scrambleText(statusRef.current, current[1], { duration: 0.4 });
+    }
+  }, [progress]);
 
   return (
-    <div className="fixed inset-0 z-[10000] bg-cinema-black flex items-center justify-center">
-      <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px'}} />
+    <div ref={rootRef} className="fixed inset-0 z-[10000] bg-cinema-black flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
 
-      <div className="relative flex flex-col items-center gap-8 z-10">
-        <div className="font-display text-8xl md:text-[10rem] tracking-[0.2em] text-glow-accent leading-none">
-          C
+      <div ref={maskRef} className="absolute inset-0 bg-cinema-black" />
+
+      <div ref={centerRef} className="relative flex flex-col items-center gap-8 z-10">
+        <div className="relative">
+          <span className="font-display text-8xl md:text-[10rem] tracking-[0.2em] text-glow-accent leading-none bg-gradient-to-b from-white via-white/70 to-transparent bg-clip-text text-transparent">
+            CINE
+          </span>
+          <div className="absolute -inset-8 rounded-full border border-cinema-accent/10 animate-pulse-glow" />
         </div>
 
-        <div className="w-[300px] md:w-[500px]">
-          <div className="flex gap-[2px]">
-            {Array.from({ length: segments }).map((_, i) => (
-              <div
-                key={i}
-                className="h-1 flex-1 transition-all duration-100"
-                style={{
-                  backgroundColor:
-                    i < filledSegments
-                      ? i % 5 === 0
-                        ? '#d4a017'
-                        : '#e50914'
-                      : 'rgba(255,255,255,0.06)',
-                  boxShadow:
-                    i < filledSegments
-                      ? `0 0 8px ${i % 5 === 0 ? 'rgba(212,160,23,0.5)' : 'rgba(229,9,20,0.5)'}`
-                      : 'none',
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="flex justify-between mt-3">
-            <span className="font-mono text-xs text-cinema-gray/60 tracking-widest">
-              {status}
-            </span>
-            <span className="font-mono text-xs text-cinema-gold">
-              {Math.floor(progress)}%
+        <div className="w-[300px] md:w-[480px]">
+          <div ref={barRef} className="h-[3px] w-full rounded-full bg-gradient-to-r from-cinema-accent via-cinema-gold to-cinema-accent" />
+          <div className="flex justify-between items-center mt-4">
+            <span ref={statusRef} className="font-mono text-xs text-cinema-gray/70 tracking-[0.25em]" />
+            <span ref={counterRef} className="font-display text-3xl text-cinema-gold tabular-nums">
+              0
             </span>
           </div>
         </div>
-
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full border border-cinema-accent/10 animate-pulse-glow" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[600px] h-[350px] md:h-[600px] rounded-full border border-cinema-gray/5" />
       </div>
     </div>
   );

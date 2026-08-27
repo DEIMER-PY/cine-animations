@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TMDB } from '../api/tmdb';
 import { useStore } from '../store/useStore';
+import { TextScramble } from './animations';
 
 function PlayButton() {
   return (
@@ -114,7 +115,7 @@ export default function VideoGallery() {
           <div className="w-[2px] h-3 bg-cinema-gold" />
         </div>
         <h2 className="font-display text-5xl md:text-7xl tracking-wider text-glow-accent">
-          NOW PLAYING
+          <TextScramble text="NOW PLAYING" delay={0.25} duration={0.8} />
         </h2>
         <div className="flex-1 h-[1px] bg-gradient-to-r from-cinema-accent/40 via-cinema-gold/20 to-transparent ml-4" />
       </div>

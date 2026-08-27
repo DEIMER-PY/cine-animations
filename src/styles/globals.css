@@ -188,3 +188,142 @@ body {
   perspective: 1000px;
   overflow: hidden;
 }
+
+/* ── Cinematic Dynamism (2026 upgrade) ────────────── */
+
+/* Animated conic/aurora background sweep */
+.aurora {
+  background: linear-gradient(
+    100deg,
+    var(--cinema-dark) 0%,
+    rgba(196, 18, 48, 0.14) 22%,
+    rgba(201, 168, 76, 0.1) 48%,
+    rgba(107, 91, 149, 0.14) 74%,
+    var(--cinema-dark) 100%
+  );
+  background-size: 300% 300%;
+  animation: auroraSweep 14s ease-in-out infinite;
+}
+
+@keyframes auroraSweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Liquid gradient text */
+.text-gradient-liquid {
+  background: linear-gradient(90deg, #c41230, #c9a84c, #8b9bb4, #c41230);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: liquidShift 6s linear infinite;
+}
+
+@keyframes liquidShift {
+  to { background-position: -300% 0; }
+}
+
+/* Cinematic spotlight that follows the cursor via CSS var --mx/--my */
+.spotlight {
+  position: relative;
+}
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(229, 9, 20, 0.12),
+    transparent 45%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.spotlight:hover::after {
+  opacity: 1;
+}
+
+/* Film reel sprocket strip */
+.sprockets {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 28px,
+    rgba(255, 255, 255, 0.05) 28px 34px
+  );
+}
+
+/* Split-text reveal (used by GSAP revealElements / useSectionReveal) */
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.split-word-inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Pulsing ring used on CTAs */
+.btn-ripple {
+  position: relative;
+}
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid rgba(196, 18, 48, 0.5);
+  animation: btnPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes btnPing {
+  0% { transform: scale(1); opacity: 0.8; }
+  75%, 100% { transform: scale(1.25); opacity: 0; }
+}
+
+/* Vertical drifting particles / embers */
+.ember {
+  position: absolute;
+  bottom: -4%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(229, 9, 20, 0.7), transparent 70%);
+  animation-name: emberRise;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+@keyframes emberRise {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  12% { opacity: 0.8; }
+  100% { transform: translateY(-110vh) translateX(var(--drift, 30px)) scale(0.2); opacity: 0; }
+}
+
+/* Scroll progress rail */
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 9997;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--cinema-accent), var(--cinema-gold));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ember,
+  .scan-line {
+    display: none;
+  }
+}
