@@ -1,0 +1,190 @@
+:root {
+  --cinema-black: #0a0a0a;
+  --cinema-dark: #111111;
+  --cinema-mid: #1a1a1a;
+  --cinema-accent: #c41230;
+  --cinema-gold: #c9a84c;
+  --cinema-gray-blue: #8b9bb4;
+  --cinema-purple: #6b5b95;
+  --cinema-surface: #1c1c1e;
+  --cinema-text: #f5f0eb;
+  --glass-bg: rgba(17, 17, 17, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.06);
+}
+
+::selection {
+  background: rgba(196, 18, 48, 0.35);
+  color: var(--cinema-text);
+}
+
+body {
+  color: var(--cinema-text);
+}
+
+/* ── Glass Panels ─────────────────────────────────── */
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(201, 168, 76, 0.03);
+}
+
+.glass-panel-tight {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+}
+
+/* ── Text & Box Glows ─────────────────────────────── */
+
+.text-glow-accent {
+  text-shadow: 0 0 16px rgba(196, 18, 48, 0.3);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 16px rgba(201, 168, 76, 0.25);
+}
+
+.box-glow-accent {
+  box-shadow: 0 0 24px rgba(196, 18, 48, 0.15), 0 0 60px rgba(196, 18, 48, 0.05);
+}
+
+/* ── Overlays ─────────────────────────────────────── */
+
+.noise-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.25;
+}
+
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cinema-gray-blue), transparent);
+  opacity: 0.06;
+  z-index: 50;
+  animation: scanLine 6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scanLine {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+.cinematic-vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.65) 100%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── Frame & Grain ────────────────────────────────── */
+
+.frame-border {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.frame-border::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  pointer-events: none;
+}
+
+.film-grain {
+  position: relative;
+}
+
+.film-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* ── Wireframe Text ───────────────────────────────── */
+
+.wireframe-text {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(139, 155, 180, 0.4);
+}
+
+/* ── Utility Classes ──────────────────────────────── */
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 155, 180, 0.2), var(--cinema-accent), rgba(139, 155, 180, 0.2), transparent);
+  border: none;
+  margin: 0;
+}
+
+.text-gradient-cinema {
+  background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--cinema-dark) 0%,
+    var(--cinema-mid) 40%,
+    var(--cinema-dark) 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.parallax-container {
+  perspective: 1000px;
+  overflow: hidden;
+}
