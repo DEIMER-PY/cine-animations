@@ -14,7 +14,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
-    "pw:install": "playwright install"
+    "pw:install": "playwright install",
+    "commit": "gitmoji -c",
+    "gitmoji-init": "gitmoji -i"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
@@ -35,6 +37,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.0",
+    "gitmoji-cli": "^9.7.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "vite": "^6.0.3"

@@ -1,0 +1,11 @@
+{
+  "gitmoji": {
+    "autoAdd": true,
+    "signed": false,
+    "gitmojis": ":tada:",
+    "ignore": [],
+    "helper": {
+      "message": "Conventional commits with gitmoji (e.g. :sparkles:, :bug:, :fire:, :wrench:, :books:, :test_tube:)"
+    }
+  }
+}
