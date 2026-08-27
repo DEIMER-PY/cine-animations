@@ -8,8 +8,11 @@ export default function MovieDetail() {
   const clearSelectedMovie = useStore((s) => s.clearSelectedMovie);
   const addFavorite = useStore((s) => s.addFavorite);
   const removeFavorite = useStore((s) => s.removeFavorite);
+  const addToWatchlist = useStore((s) => s.addToWatchlist);
+  const removeFromWatchlist = useStore((s) => s.removeFromWatchlist);
   const openTrailer = useStore((s) => s.openTrailer);
   const favorites = useStore((s) => s.favorites);
+  const watchlist = useStore((s) => s.watchlist);
   const { movie } = useMovieDetails(selectedMovie?.id);
   const { getGenreName } = useGenres();
   const [activeTab, setActiveTab] = useState('overview');
@@ -17,6 +20,7 @@ export default function MovieDetail() {
   const contentRef = useRef(null);
 
   const isFav = favorites.some((f) => f.id === selectedMovie?.id);
+  const isQueued = watchlist.some((item) => item.id === selectedMovie?.id);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -156,6 +160,12 @@ export default function MovieDetail() {
                 >
                   <span>{isFav ? '♥' : '♡'}</span>
                   {isFav ? 'SAVED' : 'SAVE'}
+                </button>
+                <button
+                  onClick={() => isQueued ? removeFromWatchlist(selectedMovie.id) : addToWatchlist(selectedMovie)}
+                  className={`flex items-center gap-2 rounded-xl border px-5 py-3 font-display text-lg tracking-wider transition-all ${isQueued ? 'border-cinema-accent bg-cinema-accent/10 text-cinema-accent' : 'border-white/10 text-white/60 hover:border-cinema-accent/50 hover:text-white'}`}
+                >
+                  {isQueued ? 'QUEUED' : 'WATCH LATER'}
                 </button>
               </div>
 

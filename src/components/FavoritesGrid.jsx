@@ -2,8 +2,9 @@ import { useRef, useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { TMDB } from '../api/tmdb';
 
-function FavoriteCard({ movie, index }) {
+function CollectionCard({ movie, index, type }) {
   const removeFavorite = useStore((s) => s.removeFavorite);
+  const removeFromWatchlist = useStore((s) => s.removeFromWatchlist);
   const setSelectedMovie = useStore((s) => s.setSelectedMovie);
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef(null);
@@ -78,7 +79,8 @@ function FavoriteCard({ movie, index }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              removeFavorite(movie.id);
+              if (type === 'favorites') removeFavorite(movie.id);
+              else removeFromWatchlist(movie.id);
             }}
             className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all duration-300 ${
               isHovered
@@ -112,7 +114,7 @@ function FavoriteCard({ movie, index }) {
           <div className="flex items-center gap-2 mt-1">
             <div className="w-1 h-1 rounded-full bg-cinema-gold/60" />
             <span className="font-mono text-[10px] text-white/30">
-              SAVED TO COLLECTION
+              {type === 'favorites' ? 'SAVED TO FAVORITES' : 'QUEUED TO WATCH'}
             </span>
           </div>
         </div>
@@ -145,7 +147,11 @@ function WaterRipple({ rippleRef }) {
 
 export default function FavoritesGrid() {
   const favorites = useStore((s) => s.favorites);
+  const watchlist = useStore((s) => s.watchlist);
+  const collectionLoading = useStore((s) => s.collectionLoading);
+  const [active, setActive] = useState('favorites');
   const rippleRef = useRef(null);
+  const movies = active === 'favorites' ? favorites : watchlist;
 
   useEffect(() => {
     let raf;
@@ -165,16 +171,21 @@ export default function FavoritesGrid() {
     };
   }, []);
 
-  if (favorites.length === 0) {
+  if (collectionLoading) {
+    return <div className="grid min-h-[45vh] place-items-center"><div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-cinema-gold" /></div>;
+  }
+
+  if (movies.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
-        <div className="text-6xl text-white/10">♡</div>
+        <CollectionTabs active={active} setActive={setActive} favorites={favorites.length} watchlist={watchlist.length} />
+        <div className="text-6xl text-white/10">◇</div>
         <div className="text-center">
           <h3 className="font-display text-2xl text-white/20 tracking-wider mb-2">
-            YOUR COLLECTION IS EMPTY
+            {active === 'favorites' ? 'YOUR FAVORITES ARE EMPTY' : 'YOUR WATCHLIST IS EMPTY'}
           </h3>
           <p className="font-mono text-xs text-white/10 tracking-wider">
-            Add films from the catalog to build your personal collection
+            Explore the archive and save a film when it catches your eye
           </p>
         </div>
         <style>{`
@@ -189,16 +200,17 @@ export default function FavoritesGrid() {
 
   return (
     <div>
+      <CollectionTabs active={active} setActive={setActive} favorites={favorites.length} watchlist={watchlist.length} />
       <div className="flex items-center gap-4 mb-8">
         <span className="font-mono text-xs text-cinema-gold/40 tracking-widest">
-          {favorites.length} FILMS SAVED
+          {movies.length} FILMS {active === 'favorites' ? 'SAVED' : 'QUEUED'}
         </span>
         <div className="flex-1 h-px bg-gradient-to-r from-cinema-gold/20 to-transparent" />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-        {favorites.map((movie, index) => (
-          <FavoriteCard key={movie.id} movie={movie} index={index} />
+        {movies.map((movie, index) => (
+          <CollectionCard key={movie.id} movie={movie} index={index} type={active} />
         ))}
       </div>
 
@@ -210,6 +222,16 @@ export default function FavoritesGrid() {
           100% { transform: scale(2.5); opacity: 0; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function CollectionTabs({ active, setActive, favorites, watchlist }) {
+  return (
+    <div className="mb-10 inline-flex rounded-full border border-white/10 bg-white/[.025] p-1">
+      {[['favorites', 'FAVORITES', favorites], ['watchlist', 'WATCH LATER', watchlist]].map(([id, label, count]) => (
+        <button key={id} onClick={() => setActive(id)} className={`rounded-full px-5 py-2 font-mono text-[10px] tracking-[.17em] transition ${active === id ? 'bg-cinema-gold text-black' : 'text-white/35 hover:text-white'}`}>{label} · {count}</button>
+      ))}
     </div>
   );
 }

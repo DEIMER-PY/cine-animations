@@ -70,6 +70,26 @@ export const Catalog = {
     }
   },
 
+  async browse(limit = 100) {
+    const movies = await fetchCatalog('popular', limit);
+    if (!supabase || !movies.length) return movies;
+    const databaseIds = movies.map((movie) => movie.databaseId).filter(Boolean);
+    const { data: links } = await supabase
+      .from('GeneroPelicula')
+      .select('peliculaId,generoId,Genero(id,nombre,slug)')
+      .in('peliculaId', databaseIds);
+    const byMovie = new Map();
+    (links || []).forEach((link) => {
+      const genres = byMovie.get(link.peliculaId) || [];
+      genres.push({ id: link.Genero?.id ?? link.generoId, name: link.Genero?.nombre, slug: link.Genero?.slug });
+      byMovie.set(link.peliculaId, genres);
+    });
+    return movies.map((movie) => {
+      const genres = byMovie.get(movie.databaseId) || [];
+      return { ...movie, genres, genre_ids: genres.map((genre) => genre.id) };
+    });
+  },
+
   async search(query, limit = 12) {
     const value = query.trim();
     if (value.length < 2) return [];
@@ -84,6 +104,23 @@ export const Catalog = {
     }
     const movies = await TMDB.fetchSearch(value);
     return movies.slice(0, limit).map(normalizeFallback);
+  },
+
+  async commandSearch(query, limit = 8) {
+    const value = query.trim().replace(/[%_]/g, '');
+    if (value.length < 2) return { movies: [], people: [], genres: [] };
+    const moviesPromise = this.search(value, limit);
+    if (!supabase) return { movies: await moviesPromise, people: [], genres: [] };
+    const [movies, peopleResult, genresResult] = await Promise.all([
+      moviesPromise,
+      supabase.from('Persona').select('id,tmdbId,nombre,fotoUrl,profesion').ilike('nombre', `%${value}%`).limit(5),
+      supabase.from('Genero').select('id,nombre,slug').ilike('nombre', `%${value}%`).limit(5),
+    ]);
+    return {
+      movies,
+      people: (peopleResult.data || []).map((person) => ({ id: person.tmdbId ?? person.id, name: person.nombre, profilePath: person.fotoUrl, profession: person.profesion })),
+      genres: (genresResult.data || []).map((genre) => ({ id: genre.id, name: genre.nombre, slug: genre.slug })),
+    };
   },
 
   async fetchGenres() {
