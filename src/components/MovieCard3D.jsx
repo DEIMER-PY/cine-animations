@@ -52,7 +52,7 @@ function GlowBorder({ isHovered, width, height }) {
   );
 }
 
-export default function MovieCard3D({ movie, position, index }) {
+export default function MovieCard3D({ movie, position }) {
   const groupRef = useRef();
   const [hovered, setHovered] = useState(false);
   const setSelectedMovie = useStore((s) => s.setSelectedMovie);

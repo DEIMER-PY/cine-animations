@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Mail, ArrowUp, Film, Star, Heart, Play, Globe, Shield } from 'lucide-react';
 

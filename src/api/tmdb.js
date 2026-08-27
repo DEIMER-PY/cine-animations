@@ -1,4 +1,3 @@
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
 const IMG_BASE = import.meta.env.VITE_TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p';
@@ -50,7 +49,7 @@ export const TMDB = {
 
   async fetchSearch(query) {
     const data = await apiFetch('/search/movie', {
-      query: encodeURIComponent(query),
+      query,
       page: '1',
     });
     return data.results;

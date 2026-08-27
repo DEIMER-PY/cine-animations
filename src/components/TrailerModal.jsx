@@ -66,8 +66,8 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
   }, [onClose])
 
   useEffect(() => {
+    const dialog = dialogRef.current
     return () => {
-      const dialog = dialogRef.current
       if (dialog && dialog.open) dialog.close()
     }
   }, [])

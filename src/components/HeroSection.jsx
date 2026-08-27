@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useStore } from '../store/useStore';
 import { TMDB } from '../api/tmdb';
+import { Marquee } from './animations';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -106,8 +107,6 @@ export default function HeroSection() {
   const stageRef = useRef(null);
 
   const bgRef = useRef(null);
-  const overlayRef = useRef(null);
-
   const phase1TitleRef = useRef(null);
   const phase1TaglineRef = useRef(null);
   const phase1ImageRef = useRef(null);
@@ -117,8 +116,6 @@ export default function HeroSection() {
   const phase2SubtextRef = useRef(null);
 
   const phase3SynopsRef = useRef(null);
-  const phase3StarsRef = useRef(null);
-
   const phase4CtaRef = useRef(null);
   const phase4OverlayRef = useRef(null);
 
@@ -486,6 +483,17 @@ export default function HeroSection() {
         <div ref={phase5GroupRef} className="absolute inset-0 z-20 pointer-events-none" />
 
         <ScrollIndicator />
+
+        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
+          <Marquee speed={30} className="border-t border-white/5 bg-cinema-black/30 backdrop-blur-sm py-3">
+            {movies.slice(0, 8).map((m) => (
+              <span key={m.id} className="mx-6 flex items-center gap-6 font-display text-lg tracking-[0.3em] text-white/25">
+                {m.title?.toUpperCase()}
+                <span className="text-cinema-accent">✦</span>
+              </span>
+            ))}
+          </Marquee>
+        </div>
       </div>
 
       <PhaseIndicator activePhase={activePhase} />

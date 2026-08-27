@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import Preloader from './components/Preloader';
 import CustomCursor from './components/CustomCursor';
 import Navigation from './components/Navigation';
@@ -8,6 +8,9 @@ import TrendingSection from './components/TrendingSection';
 import VideoGallery from './components/VideoGallery';
 import MovieFrames from './components/MovieFrames';
 import CinematicCanvas from './components/CinematicCanvas';
+import GlobalBackdrop from './components/GlobalBackdrop';
+import ScrollProgress from './components/ScrollProgress';
+import Embers from './components/Embers';
 import CastSection from './components/CastSection';
 import FavoritesGrid from './components/FavoritesGrid';
 import MovieDetail from './components/MovieDetail';
@@ -18,23 +21,16 @@ import { useStore } from './store/useStore';
 
 export default function App() {
   const [loaded, setLoaded] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
   const selectedMovie = useStore((s) => s.selectedMovie);
   const currentSection = useStore((s) => s.currentSection);
   const showAuthModal = useStore((s) => s.showAuthModal);
   const setShowAuthModal = useStore((s) => s.setShowAuthModal);
   const showTrailerModal = useStore((s) => s.showTrailerModal);
   const trailerMovie = useStore((s) => s.trailerMovie);
-  const loadFavorites = useStore((s) => s.loadFavorites);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoaded(true), 100);
-    loadFavorites();
-    return () => clearTimeout(timer);
-  }, []);
+  const handleReady = useCallback(() => setLoaded(true), []);
 
   if (!loaded) {
-    return <Preloader onReady={() => setAssetsReady(true)} />;
+    return <Preloader onReady={handleReady} />;
   }
 
   return (
@@ -42,9 +38,12 @@ export default function App() {
       <div className="scan-line" />
       <div className="cinematic-vignette" />
       <CustomCursor />
+      <ScrollProgress />
+      <GlobalBackdrop />
+      <Embers />
       <Navigation />
 
-      <main>
+      <main className="relative z-10">
         {currentSection === 'home' && (
           <>
             <HeroSection />

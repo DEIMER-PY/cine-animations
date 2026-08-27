@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Film, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Film } from 'lucide-react';
 import { TMDB } from '../api/tmdb';
 import { useStore } from '../store/useStore';
+import { TextScramble } from './animations';
 
 const ImdbIcon = ({ size = 16, className = '' }) => (
   <svg
@@ -194,7 +195,7 @@ export default function CastSection() {
           className="text-center"
         >
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider text-white mb-3">
-            THE ENSEMBLE
+            <TextScramble text="THE ENSEMBLE" delay={0.3} duration={0.8} />
           </h2>
           <div className="flex items-center justify-center gap-4 mb-4">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#e50914]" />

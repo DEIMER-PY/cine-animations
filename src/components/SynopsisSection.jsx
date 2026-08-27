@@ -4,6 +4,8 @@ import { Star } from 'lucide-react';
 import { TMDB } from '../api/tmdb';
 import { useStore } from '../store/useStore';
 import { useGenres } from '../hooks/useMovies';
+import CinematicBackdrop from './CinematicBackdrop';
+import { TextScramble, AnimatedCounter } from './animations';
 
 const AUTO_ROTATE_MS = 6000;
 const MAX_MOVIES = 5;
@@ -34,7 +36,6 @@ export default function SynopsisSection() {
   const movie = movies[currentIdx];
   if (!movie) return null;
 
-  const backdropUrl = TMDB.backdrop(movie.backdrop_path, 'original');
   const posterUrl = TMDB.poster(movie.poster_path, 'w500');
 
   const containerVariants = {
@@ -50,14 +51,9 @@ export default function SynopsisSection() {
   return (
     <section className="relative w-full overflow-hidden">
       <div className="absolute inset-0">
-        <img
-          key={movie.id}
-          src={backdropUrl}
-          alt=""
-          className="w-full h-full object-cover transition-opacity duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-cinema-black via-cinema-black/80 to-cinema-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-cinema-black via-transparent to-cinema-black/60" />
+        <CinematicBackdrop movieId={movie.id} backdropPath={movie.backdrop_path} intensity={0.5} />
+        <div className="absolute inset-0 bg-gradient-to-r from-cinema-black via-cinema-black/70 to-cinema-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-cinema-black via-transparent to-cinema-black/50" />
       </div>
 
       <div className="relative z-10 max-w-[1600px] mx-auto px-4 md:px-8 lg:px-16 py-20 md:py-28">
@@ -97,13 +93,13 @@ export default function SynopsisSection() {
               variants={childVariants}
               className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-wider mb-4 text-glow-accent"
             >
-              {movie.title}
+              <TextScramble text={movie.title} duration={1.2} />
             </motion.h2>
 
             <motion.div variants={childVariants} className="flex flex-wrap items-center gap-3 mb-5 text-sm">
               <span className="flex items-center gap-1.5 font-mono text-cinema-gold">
                 <Star size={14} className="text-cinema-accent fill-cinema-accent" />
-                {movie.vote_average?.toFixed(1)}
+                <AnimatedCounter to={movie.vote_average || 0} decimals={1} />
               </span>
               <span className="text-white/20">|</span>
               <span className="font-mono text-white/40">

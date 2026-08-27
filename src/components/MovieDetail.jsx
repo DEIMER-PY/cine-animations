@@ -10,7 +10,7 @@ export default function MovieDetail() {
   const removeFavorite = useStore((s) => s.removeFavorite);
   const openTrailer = useStore((s) => s.openTrailer);
   const favorites = useStore((s) => s.favorites);
-  const { movie, loading } = useMovieDetails(selectedMovie?.id);
+  const { movie } = useMovieDetails(selectedMovie?.id);
   const { getGenreName } = useGenres();
   const [activeTab, setActiveTab] = useState('overview');
   const overlayRef = useRef(null);
@@ -21,7 +21,7 @@ export default function MovieDetail() {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
-  }, []);
+  }, [clearSelectedMovie]);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -67,6 +67,7 @@ export default function MovieDetail() {
 
           <button
             onClick={clearSelectedMovie}
+            aria-label="Close movie details"
             data-cursor-magnetic
             className="absolute top-4 right-4 w-10 h-10 rounded-full glass-panel-tight flex items-center justify-center text-white/60 hover:text-white hover:bg-cinema-accent/20 transition-all z-10"
           >
