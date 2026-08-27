@@ -29,7 +29,7 @@ export default function MovieDetail() {
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
+  }, [clearSelectedMovie]);
 
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) clearSelectedMovie();

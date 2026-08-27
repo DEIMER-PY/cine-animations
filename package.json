@@ -21,6 +21,7 @@
   "dependencies": {
     "@react-three/drei": "^9.114.3",
     "@react-three/fiber": "^8.17.10",
+    "@supabase/supabase-js": "2.112.4",
     "framer-motion": "^13.1.1",
     "gsap": "^3.12.5",
     "json-server": "^0.17.4",

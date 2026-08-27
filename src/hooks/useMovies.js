@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TMDB } from '../api/tmdb';
+import { Catalog } from '../api/catalog';
 
 export function useMovies(category = 'trending') {
   const [movies, setMovies] = useState([]);
@@ -10,20 +10,7 @@ export function useMovies(category = 'trending') {
     setLoading(true);
     setError(null);
     try {
-      let data;
-      switch (category) {
-        case 'popular':
-          data = await TMDB.fetchPopular();
-          break;
-        case 'topRated':
-          data = await TMDB.fetchTopRated();
-          break;
-        case 'nowPlaying':
-          data = await TMDB.fetchNowPlaying();
-          break;
-        default:
-          data = await TMDB.fetchTrending();
-      }
+      const data = await Catalog.fetchMovies(category);
       setMovies(data);
     } catch (err) {
       setError(err.message);
@@ -50,7 +37,7 @@ export function useMovieDetails(id) {
     (async () => {
       setLoading(true);
       try {
-        const data = await TMDB.fetchMovieDetails(id);
+        const data = await Catalog.fetchMovieDetails(id);
         if (!cancelled) setMovie(data);
       } catch (err) {
         if (!cancelled) setError(err.message);
@@ -75,7 +62,7 @@ export function useSearch() {
     }
     setLoading(true);
     try {
-      const data = await TMDB.fetchSearch(query);
+      const data = await Catalog.search(query);
       setResults(data);
     } catch {
       setResults([]);
@@ -91,7 +78,7 @@ export function useGenres() {
   const [genres, setGenres] = useState([]);
 
   useEffect(() => {
-    TMDB.fetchGenres().then(setGenres).catch(() => {});
+    Catalog.fetchGenres().then(setGenres).catch(() => {});
   }, []);
 
   const getGenreName = (id) => {
