@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { TMDB } from '../api/tmdb';
+import { Catalog } from '../api/catalog';
 
 /**
  * Plays a muted, looping cinematic trailer as a full-bleed background layer
@@ -16,12 +17,9 @@ export default function CinematicBackdrop({ movieId, backdropPath, intensity = 0
   useEffect(() => {
     if (!movieId) return;
     let cancelled = false;
-    fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos`, {
-      headers: { Authorization: 'Bearer ' + import.meta.env.VITE_TMDB_TOKEN },
-    })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
+    Catalog.fetchMovieDetails(movieId)
       .then((data) => {
-        const yt = (data.results || []).find(
+        const yt = (data?.videos?.results || []).find(
           (v) => v.site === 'YouTube' && v.type === 'Trailer'
         );
         if (yt && !cancelled) setVideoKey(yt.key);

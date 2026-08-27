@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Play, Film } from 'lucide-react'
+import { Catalog } from '../api/catalog'
 
 export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, movieBackdropPath }) {
   const dialogRef = useRef(null)
@@ -30,17 +31,9 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
     setRelatedVideos([])
     setSelectedVideo(null)
 
-    fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos`, {
-      headers: {
-        Authorization: 'Bearer ' + import.meta.env.VITE_TMDB_TOKEN,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch videos')
-        return res.json()
-      })
+    Catalog.fetchMovieDetails(movieId)
       .then((data) => {
-        const ytVideos = (data.results || []).filter((v) => v.site === 'YouTube')
+        const ytVideos = (data?.videos?.results || []).filter((v) => v.site === 'YouTube')
         const trailers = ytVideos.filter((v) => v.type === 'Trailer')
         const mainTrailer = trailers.length > 0 ? trailers[0] : ytVideos[0] || null
         const others = ytVideos.filter((v) => v.key !== mainTrailer?.key)

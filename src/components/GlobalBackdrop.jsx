@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { TMDB } from '../api/tmdb';
+import { Catalog } from '../api/catalog';
 
 /** A fixed, full-viewport ambient video layer that quietly plays behind all content. */
 export default function GlobalBackdrop({ intensity = 0.92 }) {
@@ -23,26 +24,15 @@ export default function GlobalBackdrop({ intensity = 0.92 }) {
 
   useEffect(() => {
     let cancelled = false;
-    TMDB.fetchTrending()
-      .then((data) => {
+    Catalog.fetchMovies('trending', 5)
+      .then(async (data) => {
         if (cancelled) return;
         const candidates = (data || []).filter((m) => m.backdrop_path);
         setMovie(candidates[0] || null);
         if (candidates[0]) {
-          return fetch(
-            `https://api.themoviedb.org/3/movie/${candidates[0].id}/videos`,
-            {
-              headers: { Authorization: 'Bearer ' + import.meta.env.VITE_TMDB_TOKEN },
-            }
-          )
-            .then((r) => (r.ok ? r.json() : Promise.reject()))
-            .then((d) => {
-              const yt = (d.results || []).find(
-                (v) => v.site === 'YouTube' && v.type === 'Trailer'
-              );
-              if (yt) setVideoKey(yt.key);
-            })
-            .catch(() => {});
+          const detail = await Catalog.fetchMovieDetails(candidates[0].id);
+          const yt = detail?.videos?.results?.find((video) => video.site === 'YouTube' && video.type === 'Trailer');
+          if (!cancelled && yt) setVideoKey(yt.key);
         }
       })
       .catch(() => {});

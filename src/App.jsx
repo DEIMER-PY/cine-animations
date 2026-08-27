@@ -7,7 +7,7 @@ import SynopsisSection from './components/SynopsisSection';
 import TrendingSection from './components/TrendingSection';
 import VideoGallery from './components/VideoGallery';
 import MovieFrames from './components/MovieFrames';
-import CinematicCanvas from './components/CinematicCanvas';
+import CatalogSection from './components/CatalogSection';
 import GlobalBackdrop from './components/GlobalBackdrop';
 import ScrollProgress from './components/ScrollProgress';
 import Embers from './components/Embers';
@@ -55,22 +55,7 @@ export default function App() {
           </>
         )}
 
-        {currentSection === 'catalog' && (
-          <section className="relative z-10 min-h-screen pt-24 px-4 md:px-8 lg:px-16">
-            <div className="max-w-[1600px] mx-auto">
-              <h2 className="font-display text-6xl md:text-8xl text-glow-accent mb-12 tracking-wider">
-                THE CINEMATIC CANVAS
-              </h2>
-              <CinematicCanvas />
-              <div className="mt-16">
-                <TrendingSection />
-              </div>
-              <div className="mt-16">
-                <VideoGallery />
-              </div>
-            </div>
-          </section>
-        )}
+        {currentSection === 'catalog' && <CatalogSection />}
 
         {currentSection === 'cast' && (
           <section className="relative z-10 min-h-screen pt-24 px-4 md:px-8 lg:px-16 pb-32">

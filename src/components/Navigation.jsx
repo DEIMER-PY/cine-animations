@@ -12,6 +12,7 @@ import {
   LogIn,
   LogOut,
 } from 'lucide-react';
+import SearchPalette from './SearchPalette';
 
 const navItems = [
   { id: 'home', label: 'HOME', icon: Home, description: 'Featured films, trailers, and cinematic experiences' },
@@ -34,10 +35,8 @@ export default function Navigation() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const searchInputRef = useRef(null);
   const dropdownTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -64,12 +63,6 @@ export default function Navigation() {
   }, [searchOpen, mobileOpen]);
 
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
-
-  useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
@@ -90,10 +83,7 @@ export default function Navigation() {
   }, [setSection]);
 
   const toggleSearch = useCallback(() => {
-    setSearchOpen((prev) => {
-      if (prev) setSearchQuery('');
-      return !prev;
-    });
+    setSearchOpen((prev) => !prev);
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -119,6 +109,7 @@ export default function Navigation() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setMobileOpen(true)}
+                aria-label="Abrir menú"
                 className="lg:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
               >
                 <Menu size={20} />
@@ -162,6 +153,7 @@ export default function Navigation() {
             {/* Center - Logo */}
             <button
               onClick={() => handleNavClick('home')}
+              aria-label="Ir al inicio"
               className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center group"
             >
               <span className="font-display text-xl sm:text-2xl font-bold tracking-[0.15em] text-glow-accent text-cinema-accent">
@@ -176,28 +168,9 @@ export default function Navigation() {
             <div className="flex items-center gap-1">
               {/* Search */}
               <div className="relative flex items-center">
-                <AnimatePresence>
-                  {searchOpen && (
-                    <motion.div
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 220, opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute right-0 overflow-hidden"
-                    >
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search films..."
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 font-mono text-xs text-white placeholder-white/30 focus:outline-none focus:border-cinema-accent/50"
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 <button
                   onClick={toggleSearch}
+                  aria-label="Abrir búsqueda"
                   className={`p-2 rounded-lg transition-all duration-300 ${
                     searchOpen
                       ? 'text-cinema-accent'
@@ -211,6 +184,7 @@ export default function Navigation() {
               {/* Favorites */}
               <button
                 onClick={() => handleNavClick('collection')}
+                aria-label="Abrir mi colección"
                 className="relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
               >
                 <Heart size={18} className={favorites.length > 0 ? 'fill-cinema-accent/30 text-cinema-accent' : ''} />
@@ -226,6 +200,7 @@ export default function Navigation() {
                 {user ? (
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-label="Abrir menú de usuario"
                     className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                   >
                     <div className="w-7 h-7 rounded-full bg-cinema-accent/20 border border-cinema-accent/30 flex items-center justify-center">
@@ -237,6 +212,7 @@ export default function Navigation() {
                 ) : (
                   <button
                     onClick={() => setShowAuthModal(true)}
+                    aria-label="Iniciar sesión"
                     className="flex items-center gap-1.5 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
                   >
                     <LogIn size={18} />
@@ -341,6 +317,7 @@ export default function Navigation() {
                 <span className="font-display text-lg font-bold tracking-[0.15em] text-cinema-accent">CINE</span>
                 <button
                   onClick={() => setMobileOpen(false)}
+                  aria-label="Cerrar menú"
                   className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
                 >
                   <X size={20} />
@@ -418,6 +395,7 @@ export default function Navigation() {
           })}
         </div>
       </div>
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
