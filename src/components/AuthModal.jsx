@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Check, Eye, EyeOff, KeyRound, LoaderCircle, Mail, UserRound, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { TextScramble } from './animations';
+import { validateAuth } from '../lib/authValidation';
 
 const copy = {
   login: ['WELCOME BACK', 'Entra a tu archivo personal de cine.'],
@@ -61,18 +62,9 @@ export default function AuthModal({ isOpen, onClose }) {
     setMessage(null);
   };
 
-  const validate = () => {
-    if (mode === 'register' && form.displayName.trim().length < 2) return 'Escribe un nombre de al menos 2 caracteres.';
-    if (mode !== 'update' && !/^\S+@\S+\.\S+$/.test(form.email)) return 'Escribe un correo válido.';
-    if (mode === 'reset') return null;
-    if (form.password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
-    if ((mode === 'register' || mode === 'update') && form.password !== form.confirmation) return 'Las contraseñas no coinciden.';
-    return null;
-  };
-
   const submit = async (event) => {
     event.preventDefault();
-    const validation = validate();
+    const validation = validateAuth(mode, form);
     if (validation) {
       setMessage({ type: 'error', text: validation });
       return;
@@ -124,7 +116,7 @@ export default function AuthModal({ isOpen, onClose }) {
             transition={{ type: 'spring', damping: 26, stiffness: 260 }}
           >
             <div className="relative hidden min-h-[610px] overflow-hidden md:block">
-              <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1400&q=85" alt="Proyector cinematográfico iluminando una sala" className="absolute inset-0 h-full w-full object-cover" />
+              <img src="/og-cine-animations.png" alt="Proyector cinematográfico iluminando una sala" className="absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-cinema-accent/10" />
               <div className="absolute inset-x-8 bottom-9">
                 <p className="font-mono text-[10px] tracking-[.35em] text-cinema-gold">PRIVATE SCREENING · 01</p>

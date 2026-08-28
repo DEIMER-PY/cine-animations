@@ -71,7 +71,12 @@ export const Catalog = {
   },
 
   async browse(limit = 100) {
-    const movies = await fetchCatalog('popular', limit);
+    let movies;
+    try {
+      movies = await fetchCatalog('popular', limit);
+    } catch {
+      movies = await this.fetchMovies('popular', limit);
+    }
     if (!supabase || !movies.length) return movies;
     const databaseIds = movies.map((movie) => movie.databaseId).filter(Boolean);
     const { data: links } = await supabase
