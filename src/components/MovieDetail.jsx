@@ -56,6 +56,7 @@ export default function MovieDetail() {
     >
       <div
         ref={contentRef}
+        data-lenis-prevent
         className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto glass-panel rounded-2xl film-grain"
       >
         <div className="relative h-[300px] md:h-[400px] overflow-hidden rounded-t-2xl">

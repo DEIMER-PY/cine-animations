@@ -22,14 +22,14 @@ function CatalogCard({ movie, index }) {
   return (
     <motion.article layout initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.94 }} transition={{ delay: Math.min(index * 0.035, 0.3) }} className="group relative">
       <button onClick={() => setSelectedMovie(movie)} className="block w-full text-left">
-        <div className="relative aspect-[.705] overflow-hidden rounded-2xl border border-white/8 bg-[#121212]">
+        <motion.div initial={{ clipPath: 'inset(0 0 100% 0)', scale: 1.06 }} whileInView={{ clipPath: 'inset(0 0 0% 0)', scale: 1 }} viewport={{ once: true, amount: 0.12 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} className="relative aspect-[.705] overflow-hidden rounded-2xl border border-white/8 bg-[#121212]" style={{ willChange: 'transform, clip-path' }}>
           {movie.poster_path ? <img src={TMDB.poster(movie.poster_path, 'w500')} alt={`Póster de ${movie.title}`} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.07] group-hover:saturate-125" /> : <div className="grid h-full place-items-center font-display text-6xl text-white/5">CINE</div>}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-transparent opacity-70 transition group-hover:opacity-95" />
           <div className="absolute inset-x-0 bottom-0 translate-y-4 p-4 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             <p className="line-clamp-3 text-xs leading-relaxed text-white/55">{movie.overview || 'Una historia esperando ser descubierta.'}</p>
           </div>
           <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 font-mono text-[9px] tracking-wider text-white/70 backdrop-blur">★ {movie.vote_average?.toFixed(1)}</span>
-        </div>
+        </motion.div>
         <div className="px-1 pt-3"><h3 className="truncate font-display text-xl tracking-wide text-white/85 transition group-hover:text-white">{movie.title}</h3><div className="mt-1 flex items-center justify-between font-mono text-[9px] tracking-[.15em] text-white/28"><span>{movie.release_date?.slice(0, 4) || 'ARCHIVE'}</span><span>{movie.genres?.[0]?.name || 'CINEMA'}</span></div></div>
       </button>
       <div className="absolute right-3 top-3 flex translate-y-2 gap-2 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 focus-within:translate-y-0 focus-within:opacity-100">
