@@ -13,6 +13,12 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.js'],
+    setupFiles: './tests/setup.js',
+    restoreMocks: true,
+  },
   build: {
     target: 'esnext',
     minify: 'esbuild',

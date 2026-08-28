@@ -1,200 +1,127 @@
-<div align="center">
+# CINE ANIMATIONS
 
-# 🎬 CINE ANIMATIONS
+Experiencia cinematográfica inmersiva construida como una SPA editorial: narrativa guiada por scroll, tipografía cinética, WebGL, transiciones continuas y un archivo de películas conectado a Supabase.
 
-**A premium interactive cinema experience.** A single-page application that fuses 3D scenes, scroll-driven cinematic animation, and a curated movie library — all powered by the TMDB API.
+![CINE ANIMATIONS](docs/screenshots/home-desktop.png)
 
-![Cine Banner](docs/banner.svg)
+## Experiencia
 
-<br/>
+- Hero de cinco actos y `500vh` orquestado con GSAP ScrollTrigger.
+- Scroll suave Lenis sincronizado con el ticker de GSAP.
+- Escena React Three Fiber, parallax, cursor magnético, máscaras de imagen y cards 3D.
+- Transiciones de sección con Framer Motion, marquesinas y reveals escalonados.
+- Catálogo con búsqueda, filtros, orden, paginación progresiva y command palette con `/`.
+- Detalle de película, créditos, trailers YouTube sin cookies y contenido relacionado.
+- Autenticación Supabase completa: registro, confirmación, login, recuperación y actualización de contraseña.
+- Favoritos y “Ver después” para invitados, con fusión segura al iniciar sesión.
+- Estados de carga, error, vacío, reintento y una variante `prefers-reduced-motion`.
+- Interacciones adaptadas para mouse, teclado, touch y móvil.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](package.json)
-[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-6-purple.svg)](https://vite.dev)
-[![Three.js](https://img.shields.io/badge/Three.js-R3F-red.svg)](https://threejs.org)
-[![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-green.svg)](https://gsap.com)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](#license)
+## Stack
 
-</div>
+React 18, Vite 6, Tailwind CSS, GSAP + ScrollTrigger, Lenis, Framer Motion, Three.js, React Three Fiber, Zustand, Supabase y Playwright.
 
----
+## Arquitectura
 
-## ✨ Features
+```text
+src/
+├── api/                 Adaptador de catálogo Supabase y fallback TMDB
+├── components/          Secciones, modales, escenas y primitivas de motion
+│   └── animations/      Marquee, TextScramble, counters y magnetic UI
+├── hooks/               Ciclos de datos, cursor y section reveals
+├── lib/                 Supabase, validación y timelines reutilizables
+├── store/               Estado global, auth y colecciones
+└── styles/              Sistema visual, utilidades GPU y reduced motion
+supabase/
+├── migrations/          Esquema, índices, privilegios y políticas RLS
+└── tests/               Contratos de seguridad reproducibles
+tests/                   Unitarias, E2E, accesibilidad y regresión visual
+docs/screenshots/        Evidencia visual generada por Playwright
+```
 
-![Features](docs/features.svg)
+El catálogo se normaliza al contrato estable `Movie` en `src/api/catalog.js`. Supabase es la fuente principal; TMDB solo actúa como enriquecimiento o fallback opcional y la aplicación desplegada no requiere un token Bearer privado en el navegador.
 
-| Area | Details |
-|------|---------|
-| **3D Canvas** | React Three Fiber scene with floating movie posters, mouse-reactive camera and depth layers |
-| **Scroll Cinema** | GSAP ScrollTrigger pinned hero with a 5-phased, 500vh scroll experience |
-| **TMDB Integration** | Trending, top-rated, now-playing, search, cast & crew and detailed movie pages |
-| **Favorites** | Zustand global state + `json-server` persistence with a water-ripple UI |
-| **Trailers** | Native `<dialog>` modal with embedded YouTube trailers & related videos |
-| **Auth Flow** | Simulated login/register with social auth options |
-| **Polish** | Custom magnetic cursor, film grain, scan-lines, noise overlay, letterboxing |
-| **Playwright CLI** | Cross-browser end-to-end testing (Chromium, Firefox, Webkit, Mobile) |
+## Instalación
 
----
-
-## 🛠 Tech Stack
-
-- **React 18** + **Vite 6**
-- **React Three Fiber / drei / three**
-- **GSAP + ScrollTrigger**
-- **Framer Motion**
-- **Tailwind CSS**
-- **Zustand** (state)
-- **lucide-react** (icons)
-- **json-server** (local API)
-- **Playwright** (E2E testing)
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** `>= 18`
-- A **TMDB API Key** and **Bearer Token** — get them from [themoviedb.org](https://www.themoviedb.org/settings/api)
-
-### Installation
+Requisitos: Node.js 22 o superior y npm 10 o superior.
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-user/cine-animations.git
+git clone https://github.com/DEIMER-PY/cine-animations.git
 cd cine-animations
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment variables
+npm ci
 cp .env.example .env
-#   then edit .env and fill in your TMDB credentials:
-#   VITE_TMDB_API_KEY=your_api_key
-#   VITE_TMDB_TOKEN=your_bearer_token
-
-# 4. Start the development servers (Vite + json-server)
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+La aplicación queda disponible en `http://localhost:5173`.
 
-> **Note:** The TMDB `Bearer` token is required for authenticated API requests. The app gracefully degrades when missing, but content will be limited.
+### Variables de entorno
 
-### Environment Variables
+| Variable | Requerida | Uso |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | Sí | URL pública del proyecto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Sí | Clave publicable; nunca usar `service_role` |
+| `VITE_TMDB_API_KEY` | No | Enriquecimiento opcional |
+| `VITE_TMDB_TOKEN` | No | Fallback local opcional; no usar en producción pública |
+| `VITE_TMDB_BASE_URL` | No | Base de TMDB |
+| `VITE_TMDB_IMAGE_BASE` | No | CDN de imágenes TMDB |
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_TMDB_API_KEY` | TMDB API key | — |
-| `VITE_TMDB_TOKEN` | TMDB v4 Bearer token | — |
-| `VITE_TMDB_BASE_URL` | TMDB API base URL | `https://api.themoviedb.org/3` |
-| `VITE_TMDB_IMAGE_BASE` | TMDB image CDN base | `https://image.tmdb.org/t/p` |
-| `VITE_JSON_SERVER_URL` | Favorites API endpoint | `http://localhost:3001` |
+## Supabase
 
----
+La migración `supabase/migrations/20260827010000_cinema_public_experience.sql` agrega `profiles`, `user_favorites`, `user_watchlist`, índices, privilegios y políticas RLS de propietario basadas en `(select auth.uid())`. La lectura pública se limita al catálogo publicado.
 
-## 📝 Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start Vite + json-server together |
-| `npm run dev:vite` | Start Vite only |
-| `npm run dev:api` | Start json-server only |
-| `npm run build` | Production build |
-| `npm run preview` | Preview the production build |
-| `npm run lint` | Run ESLint |
-
-### Playwright CLI
-
-| Script | Description |
-|--------|-------------|
-| `npm run test:e2e` | Run the E2E test suite (headless) |
-| `npm run test:e2e:ui` | Open the interactive Playwright UI |
-| `npm run test:e2e:headed` | Run tests with visible browser |
-| `npm run test:e2e:report` | Open the HTML report |
-| `npm run pw:install` | Install the Playwright browsers |
-
-Before running E2E tests the first time:
+Las tablas legadas `Usuario`, `RefreshToken`, `Favorito` y `Watchlist` permanecen intactas y sin exposición pública.
 
 ```bash
-npm run pw:install
-npm run test:e2e
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
 ```
 
----
+Después del despliegue, añade la URL pública y su callback `/` a las Redirect URLs de Supabase Auth.
 
-## 🧪 Project Structure
+## Scripts
 
-```
-cine-animations/
-├── public/                 # static assets
-├── src/
-│   ├── api/                # TMDB API wrapper (Bearer auth)
-│   ├── components/         # all UI + scene components
-│   ├── hooks/              # useMouse, useMovies, useGenres, etc.
-│   ├── store/              # Zustand global store
-│   ├── styles/             # global CSS + cinema theme
-│   ├── utils/              # lerp, easing, math helpers
-│   ├── App.jsx             # app shell, section routing, modals
-│   └── main.jsx            # React entry
-├── tests/                  # Playwright E2E tests
-├── docs/                   # README images
-├── db.json                 # json-server favorites db
-├── playwright.config.js    # E2E configuration
-└── vite.config.js          # Vite + chunk-splitting config
-```
+| Comando | Resultado |
+| --- | --- |
+| `npm run dev` | Desarrollo Vite |
+| `npm run build` | Bundle de producción |
+| `npm run preview` | Preview local del bundle |
+| `npm run lint` | ESLint sobre `src` |
+| `npm run test` | Vitest: adaptadores, store y validación |
+| `npm run test:e2e` | Matriz Playwright |
+| `npm run pw:install` | Chromium, Firefox y WebKit |
+| `npm run test:all` | Lint + unitarias + build + E2E |
 
----
+Los E2E cubren hero, navegación, command palette, catálogo, filtros, detalle, auth, favoritos, watchlist, persistencia, teclado, touch, consola y accesibilidad. Los servicios externos se estabilizan con fixtures de red para evitar falsos negativos.
 
-## 📸 Screenshots
+## Evidencia visual
 
-> Skip a screenshot of your running app into a `docs/` folder and reference it here:
+| Superficie | Captura |
+| --- | --- |
+| Catálogo | ![Catálogo](docs/screenshots/catalog-desktop.png) |
+| Detalle | ![Detalle](docs/screenshots/detail-desktop.png) |
+| Login | ![Login](docs/screenshots/login-desktop.png) |
+| Móvil | ![Inicio móvil](docs/screenshots/home-mobile.png) |
 
-```
-![Home](docs/home.png)
-```
+La tarjeta social `public/og-cine-animations.png` es una pieza original generada para el proyecto; no reutiliza recursos de las webs de referencia.
 
----
+## Flujo Git
 
-## 🧠 Architecture Notes
+La rama de integración es `develop`. Cada responsabilidad se trabajó en una rama `codex/feature/*` y se fusiona con commits convencionales y gitmoji:
 
-- **Pinned hero:** `HeroSection` uses a `500vh` section with a `sticky` stage; GSAP orchestrates 5 animation phases as the user scrolls.
-- **State:** `useStore` is a Zustand store handling sections, favorites (with `json-server` persistence), auth, and the trailer modal.
-- **API:** `src/api/tmdb.js` centralizes TMDB calls behind a single `apiFetch` helper with Bearer auth and `es-ES` locale.
-- **Code splitting:** large 3D/three chunks are split via `manualChunks` in `vite.config.js`.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/awesome-feature`
-3. Commit with conventional messages + emojis (see below)
-4. Push and open a Pull Request
-
-### Commit Convention
-
-This repo uses **Conventional Commits** with **emoji types**:
-
-```
-:tada: feat:     new feature
-:bug: fix:       bug fix
-:fire: perf:     performance improvement
-:recycle: refactor:  code refactor (no behavior change)
-:sparkles: style:    styling / UI polish
-:test_tube: test:    adding or updating tests
-:books: docs:        documentation
-:memo: chore:        tooling / maintenance
+```text
+:sparkles: feat: add immersive catalog discovery
+:lock: feat: secure auth and collections with Supabase
+:test_tube: test: expand visual and functional coverage
+:books: docs: document cinematic architecture
 ```
 
----
+CI ejecuta Node 22, lint, Vitest, build y Playwright; conserva reportes, screenshots y traces cuando una prueba falla.
 
-## 📄 License
+## Despliegue
+
+La SPA incluye reglas para refresh profundo en Vercel y hosts compatibles con `_redirects`. La URL pública se añadirá aquí al publicar la versión de `develop`.
+
+## Licencia
 
 [MIT](LICENSE)
-
----
-
-<div align="center">
-  <sub>Built with ❤️ using React, Three.js, GSAP & the TMDB API.</sub>
-</div>

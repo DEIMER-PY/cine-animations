@@ -26,7 +26,15 @@ export default function Preloader({ onReady }) {
 
   useEffect(() => {
     let active = true;
+    let completed = false;
     let exitTimeline;
+    const finish = () => {
+      if (!active || completed) return;
+      completed = true;
+      setPreloaderDone();
+      onReady?.();
+    };
+    const safetyTimer = window.setTimeout(finish, 8000);
     const context = gsap.context(() => {
       gsap.fromTo(
         barRef.current,
@@ -81,10 +89,7 @@ export default function Preloader({ onReady }) {
 
       if (!active) return;
       exitTimeline = gsap.timeline({
-        onComplete: () => {
-          setPreloaderDone();
-          onReady?.();
-        },
+        onComplete: finish,
       });
       exitTimeline
         .to(centerRef.current, { scale: 1.4, opacity: 0, duration: 0.5, ease: 'power2.in' })
@@ -95,6 +100,7 @@ export default function Preloader({ onReady }) {
 
     return () => {
       active = false;
+      window.clearTimeout(safetyTimer);
       exitTimeline?.kill();
       context.revert();
     };
