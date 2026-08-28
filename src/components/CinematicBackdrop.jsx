@@ -12,6 +12,7 @@ export default function CinematicBackdrop({ movieId, backdropPath, intensity = 0
   const wrapRef = useRef(null);
   const [videoKey, setVideoKey] = useState(null);
   const [ready, setReady] = useState(false);
+  const [allowMotion, setAllowMotion] = useState(false);
 
   // fetch a YouTube trailer for the given movie
   useEffect(() => {
@@ -29,6 +30,25 @@ export default function CinematicBackdrop({ movieId, backdropPath, intensity = 0
       cancelled = true;
     };
   }, [movieId]);
+
+  useEffect(() => {
+    const node = wrapRef.current;
+    const media = window.matchMedia('(prefers-reduced-motion: no-preference)');
+    if (!node) return undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      setAllowMotion(entry.isIntersecting && media.matches && !document.hidden);
+      if (!entry.isIntersecting) setReady(false);
+    }, { threshold: 0.08 });
+    const sync = () => setAllowMotion(media.matches && !document.hidden && node.getBoundingClientRect().bottom > 0 && node.getBoundingClientRect().top < window.innerHeight);
+    observer.observe(node);
+    media.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', sync);
+    return () => {
+      observer.disconnect();
+      media.removeEventListener('change', sync);
+      document.removeEventListener('visibilitychange', sync);
+    };
+  }, []);
 
   // fade the layer in once mounted
   useEffect(() => {
@@ -48,7 +68,7 @@ export default function CinematicBackdrop({ movieId, backdropPath, intensity = 0
       />
 
       {/* trailer video */}
-      {videoKey && (
+      {videoKey && allowMotion && (
         <iframe
           title="cinematic backdrop"
           src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1&loop=1&playlist=${videoKey}&controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1`}

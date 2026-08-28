@@ -53,7 +53,7 @@ export default function SearchPalette({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <motion.div className="fixed inset-0 z-[900] flex justify-center bg-black/80 px-4 pt-[10vh] backdrop-blur-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-          <motion.section role="dialog" aria-modal="true" aria-label="Buscar en el archivo cinematográfico" className="h-fit max-h-[78vh] w-full max-w-3xl overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#0c0c0d]/95 shadow-[0_30px_100px_rgba(0,0,0,.75)]" initial={{ y: -24, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: -18, scale: 0.98 }}>
+          <motion.section role="dialog" aria-modal="true" aria-label="Buscar en el archivo cinematográfico" data-lenis-prevent className="h-fit max-h-[78vh] w-full max-w-3xl overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#0c0c0d]/95 shadow-[0_30px_100px_rgba(0,0,0,.75)]" initial={{ y: -24, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: -18, scale: 0.98 }}>
             <div className="flex items-center gap-4 border-b border-white/8 px-5 sm:px-7">
               {loading ? <LoaderCircle className="animate-spin text-cinema-accent" size={20} /> : <Search className="text-cinema-accent" size={20} />}
               <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} className="h-20 flex-1 bg-transparent font-display text-2xl tracking-wide text-white outline-none placeholder:text-white/20" placeholder="BUSCA PELÍCULA, PERSONA O GÉNERO" aria-label="Consulta" />

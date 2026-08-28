@@ -117,6 +117,7 @@ export default function AuthModal({ isOpen, onClose }) {
             aria-modal="true"
             aria-labelledby={titleId}
             className="relative my-auto grid w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#090909] shadow-[0_45px_120px_rgba(0,0,0,.8)] md:grid-cols-[1.08fr_.92fr]"
+            data-lenis-prevent
             initial={{ opacity: 0, scale: 0.94, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}

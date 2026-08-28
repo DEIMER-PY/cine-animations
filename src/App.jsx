@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Preloader from './components/Preloader';
 import CustomCursor from './components/CustomCursor';
 import Navigation from './components/Navigation';
@@ -17,6 +18,7 @@ import MovieDetail from './components/MovieDetail';
 import TrailerModal from './components/TrailerModal';
 import AuthModal from './components/AuthModal';
 import Footer from './components/Footer';
+import SmoothScroll from './components/SmoothScroll';
 import { useStore } from './store/useStore';
 
 export default function App() {
@@ -38,12 +40,22 @@ export default function App() {
       <div className="scan-line" />
       <div className="cinematic-vignette" />
       <CustomCursor />
+      <SmoothScroll />
       <ScrollProgress />
       <GlobalBackdrop />
       <Embers />
       <Navigation />
 
-      <main className="relative z-10">
+      <AnimatePresence mode="wait" initial={false}>
+      <motion.main
+        key={currentSection}
+        className="relative z-10"
+        initial={{ opacity: 0, clipPath: 'inset(0 0 7% 0)', y: 24 }}
+        animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)', y: 0 }}
+        exit={{ opacity: 0, clipPath: 'inset(5% 0 0 0)', y: -16 }}
+        transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+        style={{ willChange: 'transform, opacity, clip-path' }}
+      >
         {currentSection === 'home' && (
           <>
             <HeroSection />
@@ -75,7 +87,8 @@ export default function App() {
             </div>
           </section>
         )}
-      </main>
+      </motion.main>
+      </AnimatePresence>
 
       <Footer />
 
