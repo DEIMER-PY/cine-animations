@@ -57,6 +57,7 @@ async function fallbackCategory(category) {
   if (category === 'popular') return TMDB.fetchPopular();
   if (category === 'topRated') return TMDB.fetchTopRated();
   if (category === 'nowPlaying') return TMDB.fetchNowPlaying();
+  if (category === 'upcoming') return TMDB.fetchUpcoming();
   return TMDB.fetchTrending();
 }
 
@@ -110,7 +111,14 @@ export const Catalog = {
     const value = query.trim().replace(/[%_]/g, '');
     if (value.length < 2) return { movies: [], people: [], genres: [] };
     const moviesPromise = this.search(value, limit);
-    if (!supabase) return { movies: await moviesPromise, people: [], genres: [] };
+    if (!supabase) {
+      const [movies, people, genres] = await Promise.all([moviesPromise, TMDB.fetchPersonSearch(value), TMDB.fetchGenres()]);
+      return {
+        movies,
+        people: people.slice(0, 5).map((person) => ({ id: person.id, name: person.name, profilePath: person.profile_path, profession: person.known_for_department })),
+        genres: genres.filter((genre) => genre.name.toLowerCase().includes(value.toLowerCase())).slice(0, 5),
+      };
+    }
     const [movies, peopleResult, genresResult] = await Promise.all([
       moviesPromise,
       supabase.from('Persona').select('id,tmdbId,nombre,fotoUrl,profesion').ilike('nombre', `%${value}%`).limit(5),

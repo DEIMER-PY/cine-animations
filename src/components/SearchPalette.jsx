@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Film, LoaderCircle, Search, Sparkles, UserRound, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Catalog } from '../api/catalog';
 import { TMDB } from '../api/tmdb';
 import { useStore } from '../store/useStore';
@@ -11,8 +12,9 @@ export default function SearchPalette({ open, onClose }) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({ movies: [], people: [], genres: [] });
-  const setSelectedMovie = useStore((state) => state.setSelectedMovie);
-  const setSection = useStore((state) => state.setSection);
+  const navigate = useNavigate();
+  const history = useStore((state) => state.history);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!open) {
@@ -20,9 +22,13 @@ export default function SearchPalette({ open, onClose }) {
       setResults({ movies: [], people: [], genres: [] });
       return undefined;
     }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event) => { if (event.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKeyDown);
     window.setTimeout(() => inputRef.current?.focus(), 80);
-    return undefined;
-  }, [open]);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener('keydown', onKeyDown); };
+  }, [open, onClose]);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -32,10 +38,13 @@ export default function SearchPalette({ open, onClose }) {
     }
     const request = ++requestRef.current;
     setLoading(true);
+    setError('');
     const timer = window.setTimeout(async () => {
       try {
         const next = await Catalog.commandSearch(query);
         if (request === requestRef.current) setResults(next);
+      } catch {
+        if (request === requestRef.current) setError('No pudimos consultar el archivo. Revisa tu conexión e inténtalo de nuevo.');
       } finally {
         if (request === requestRef.current) setLoading(false);
       }
@@ -44,10 +53,7 @@ export default function SearchPalette({ open, onClose }) {
   }, [query]);
 
   const count = useMemo(() => results.movies.length + results.people.length + results.genres.length, [results]);
-  const selectMovie = (movie) => {
-    setSelectedMovie(movie);
-    onClose();
-  };
+  const go = (path) => { onClose(); navigate(path); };
 
   return (
     <AnimatePresence>
@@ -63,9 +69,10 @@ export default function SearchPalette({ open, onClose }) {
             <div className="max-h-[calc(78vh-5rem)] overflow-y-auto p-4 sm:p-6">
               {query.length < 2 && (
                 <div className="grid min-h-56 place-items-center text-center">
-                  <div><Sparkles className="mx-auto mb-4 text-cinema-gold/60" /><p className="font-mono text-[10px] tracking-[.25em] text-white/35">ESCRIBE DOS CARACTERES PARA EXPLORAR</p><p className="mt-2 text-xs text-white/20">Atajo global: /</p></div>
+                  <div><Sparkles className="mx-auto mb-4 text-cinema-gold/60" /><p className="font-mono text-[10px] tracking-[.25em] text-white/35">PELÍCULA, PERSONA O GÉNERO</p><p className="mt-2 text-xs text-white/20">Atajos: / o Ctrl/⌘ + K</p>{history.length > 0 && <button onClick={() => go(`/pelicula/${history[0].id}`)} className="mt-6 border-b border-cinema-gold/40 pb-1 font-mono text-[9px] tracking-widest text-cinema-gold">CONTINUAR EXPLORANDO: {history[0].title}</button>}</div>
                 </div>
               )}
+              {error && <div role="alert" className="m-3 border border-red-500/20 bg-red-500/10 p-4 text-center text-xs text-red-200">{error}</div>}
               {query.length >= 2 && !loading && count === 0 && (
                 <div className="grid min-h-56 place-items-center text-center"><div><p className="font-display text-3xl text-white/25">SIN RESULTADOS</p><p className="mt-2 text-xs text-white/25">Prueba otro título, artista o género.</p></div></div>
               )}
@@ -75,7 +82,7 @@ export default function SearchPalette({ open, onClose }) {
                   <p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">PELÍCULAS · {results.movies.length}</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {results.movies.map((movie) => (
-                      <button key={movie.id} onClick={() => selectMovie(movie)} className="group flex items-center gap-3 rounded-xl border border-transparent p-2 text-left transition hover:border-white/10 hover:bg-white/[.04]">
+                      <button key={movie.id} onClick={() => go(`/pelicula/${movie.id}`)} className="group flex items-center gap-3 rounded-xl border border-transparent p-2 text-left transition hover:border-white/10 hover:bg-white/[.04]">
                         <div className="h-16 w-11 shrink-0 overflow-hidden rounded-md bg-white/5">{movie.poster_path ? <img src={TMDB.poster(movie.poster_path, 'w185')} alt="" className="h-full w-full object-cover" /> : <Film className="m-auto mt-5 text-white/20" size={18} />}</div>
                         <div className="min-w-0"><p className="truncate text-sm text-white/75 group-hover:text-white">{movie.title}</p><p className="mt-1 font-mono text-[9px] tracking-wider text-white/25">{movie.release_date?.slice(0, 4) || 'SIN FECHA'} · ★ {movie.vote_average?.toFixed(1)}</p></div>
                       </button>
@@ -86,8 +93,8 @@ export default function SearchPalette({ open, onClose }) {
 
               {(results.people.length > 0 || results.genres.length > 0) && (
                 <div className="mt-6 grid gap-6 border-t border-white/5 pt-5 sm:grid-cols-2">
-                  {results.people.length > 0 && <div><p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">PERSONAS</p>{results.people.map((person) => <div key={person.id} className="flex items-center gap-3 rounded-xl p-2"><div className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-white/5">{person.profilePath ? <img src={TMDB.profile(person.profilePath, 'w185')} alt="" className="h-full w-full object-cover" /> : <UserRound size={16} className="text-white/20" />}</div><div><p className="text-xs text-white/70">{person.name}</p><p className="font-mono text-[8px] tracking-widest text-white/25">{person.profession || 'CINE'}</p></div></div>)}</div>}
-                  {results.genres.length > 0 && <div><p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">GÉNEROS</p><div className="flex flex-wrap gap-2">{results.genres.map((genre) => <button key={genre.id} onClick={() => { setSection('catalog'); onClose(); }} className="rounded-full border border-white/10 px-3 py-2 font-mono text-[9px] tracking-wider text-white/45 transition hover:border-cinema-accent/40 hover:text-white">{genre.name}</button>)}</div></div>}
+                  {results.people.length > 0 && <div><p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">PERSONAS</p>{results.people.map((person) => <button onClick={() => go(`/persona/${person.id}`)} key={person.id} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/[.04]"><div className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-white/5">{person.profilePath ? <img src={TMDB.profile(person.profilePath, 'w185')} alt="" className="h-full w-full object-cover" /> : <UserRound size={16} className="text-white/20" />}</div><div><p className="text-xs text-white/70">{person.name}</p><p className="font-mono text-[8px] tracking-widest text-white/25">{person.profession || 'CINE'}</p></div></button>)}</div>}
+                  {results.genres.length > 0 && <div><p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">GÉNEROS</p><div className="flex flex-wrap gap-2">{results.genres.map((genre) => <button key={genre.id} onClick={() => go(`/cartelera?q=${encodeURIComponent(genre.name)}`)} className="rounded-full border border-white/10 px-3 py-2 font-mono text-[9px] tracking-wider text-white/45 transition hover:border-cinema-accent/40 hover:text-white">{genre.name}</button>)}</div></div>}
                 </div>
               )}
             </div>

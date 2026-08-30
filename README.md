@@ -1,200 +1,205 @@
 <div align="center">
 
-# 🎬 CINE ANIMATIONS
+# CINE ANIMATIONS
 
-**A premium interactive cinema experience.** A single-page application that fuses 3D scenes, scroll-driven cinematic animation, and a curated movie library — all powered by the TMDB API.
+### Una cartelera premium que comienza antes de apagar las luces
 
-![Cine Banner](docs/banner.svg)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=fff)](https://vite.dev/)
+[![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-88CE02?logo=greensock&logoColor=111)](https://gsap.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres_·_Auth_·_Realtime-3FCF8E?logo=supabase&logoColor=fff)](https://supabase.com/)
+[![TMDB](https://img.shields.io/badge/TMDB-Data_API-01B4E4?logo=themoviedatabase&logoColor=fff)](https://developer.themoviedb.org/)
+[![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?logo=playwright&logoColor=fff)](https://playwright.dev/)
 
-<br/>
-
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](package.json)
-[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-6-purple.svg)](https://vite.dev)
-[![Three.js](https://img.shields.io/badge/Three.js-R3F-red.svg)](https://threejs.org)
-[![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-green.svg)](https://gsap.com)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](#license)
+React, TMDB y Supabase convertidos en una experiencia de cine funcional para Bogotá: descubrir, elegir función, seleccionar asientos, reservar o completar una compra demostrativa.
 
 </div>
 
----
+![Home cinematográfica de CINE ANIMATIONS](docs/images/home-cinematic.png)
 
-## ✨ Features
+## La experiencia
 
-![Features](docs/features.svg)
+CINE ANIMATIONS combina navegación comercial inmediata con una narrativa visual inspirada en experiencias web cinematográficas. El usuario puede explorar sin cuenta; la autenticación aparece únicamente al confirmar un hold y devuelve a la función exacta que originó el flujo.
 
-| Area | Details |
-|------|---------|
-| **3D Canvas** | React Three Fiber scene with floating movie posters, mouse-reactive camera and depth layers |
-| **Scroll Cinema** | GSAP ScrollTrigger pinned hero with a 5-phased, 500vh scroll experience |
-| **TMDB Integration** | Trending, top-rated, now-playing, search, cast & crew and detailed movie pages |
-| **Favorites** | Zustand global state + `json-server` persistence with a water-ripple UI |
-| **Trailers** | Native `<dialog>` modal with embedded YouTube trailers & related videos |
-| **Auth Flow** | Simulated login/register with social auth options |
-| **Polish** | Custom magnetic cursor, film grain, scan-lines, noise overlay, letterboxing |
-| **Playwright CLI** | Cross-browser end-to-end testing (Chromium, Firefox, Webkit, Mobile) |
+- Home inmersiva con media local optimizada, escena 3D diferida, horarios utilizables y secuencias GSAP.
+- Descubrimiento tipo videoteca: Top 10, recomendaciones según actividad, crítica, próximos estrenos y carriles horizontales accesibles.
+- Búsqueda global desde teclado (`/` o `Ctrl/⌘ + K`) y navegación por películas, personas y géneros.
+- Cartelera de siete días con búsqueda por título o género, filtros de año, idioma y formato, y orden por popularidad, puntuación o estreno.
+- Ficha con trailer bajo demanda, dirección, reparto, funciones, favoritos, valoración y reseña.
+- Perfil individual de actores/directores con biografía, filmografía y enlaces sociales obtenidos de TMDB.
+- Sala dinámica con pantalla curva, pasillos, zonas, accesibilidad, ubicación, ocho asientos máximos y estados Realtime.
+- Reserva o compra demo diferenciadas, hold de diez minutos, revalidación y entrada digital.
+- Archivo con entradas, reservas, favoritos, “Ver más tarde” e historial; las colecciones anónimas permanecen en el dispositivo y se fusionan al iniciar sesión.
+- Login/registro/recuperación full-screen con retorno seguro al flujo de compra.
 
----
+## Archivo en movimiento
 
-## 🛠 Tech Stack
+![MovieFrames animados con GSAP](docs/images/movie-frames.png)
 
-- **React 18** + **Vite 6**
-- **React Three Fiber / drei / three**
-- **GSAP + ScrollTrigger**
-- **Framer Motion**
-- **Tailwind CSS**
-- **Zustand** (state)
-- **lucide-react** (icons)
-- **json-server** (local API)
-- **Playwright** (E2E testing)
+Los `MovieFrames` originales regresaron antes del footer. Ahora son tres loops GSAP bidireccionales, enlazan a fichas reales, se pausan con hover o control explícito y respetan `prefers-reduced-motion`. Sobre ellos aparece una pieza Higgsfield original de 4 segundos, servida localmente como MP4, WebM y póster WebP.
 
----
+## Selección de asientos
 
-## 🚀 Getting Started
+![Mapa interactivo de asientos](docs/images/seat-selection.png)
 
-### Prerequisites
+El mapa se genera a partir de la función seleccionada y diferencia `available`, `selected`, `held`, `reserved`, `sold` y `accessible`. La interfaz informa código, zona física, cantidad, precio unitario y total; el navegador nunca actualiza disponibilidad directamente.
 
-- **Node.js** `>= 18`
-- A **TMDB API Key** and **Bearer Token** — get them from [themoviedb.org](https://www.themoviedb.org/settings/api)
+## Arquitectura
 
-### Installation
+```mermaid
+flowchart LR
+  U[Usuario] --> R[React Router]
+  R --> H[Home y catálogo]
+  R --> D[Película y persona]
+  R --> S[Sala y checkout]
+  R --> A[Cuenta y acceso]
+  H --> C[Catálogo normalizado]
+  D --> C
+  C --> P[Supabase Edge Function\nTMDB Proxy + caché]
+  P --> T[TMDB API]
+  S --> B[Módulo de reservas]
+  A --> B
+  B --> Q[RPC públicas invoker]
+  Q --> X[Funciones private\nsecurity definer]
+  X --> DB[(Postgres + RLS)]
+  DB --> RT[Supabase Realtime]
+  RT --> S
+```
+
+```mermaid
+sequenceDiagram
+  participant V as Visitante
+  participant UI as React
+  participant Auth as Supabase Auth
+  participant RPC as Booking RPC
+  participant DB as Postgres
+  V->>UI: Selecciona función y asientos
+  UI->>Auth: Solicita sesión al crear hold
+  Auth-->>UI: Regresa a la función original
+  UI->>RPC: hold_cinema_seats(showing, seats)
+  RPC->>DB: Bloquea filas y revalida disponibilidad
+  DB-->>RPC: Hold de 10 minutos
+  RPC-->>UI: Resumen y expiración
+  UI->>RPC: Confirmar reserva o compra demo
+  RPC->>DB: reserved o sold + entrada
+  DB-->>UI: Actualización Realtime
+```
+
+## Cobertura de requerimientos funcionales
+
+| RF | Estado | Implementación |
+|---:|:---:|---|
+| RF-01 | ✅ | Cartelera TMDB/Supabase con fallback local normalizado |
+| RF-02 | ✅ | Búsqueda por título y género; filtros adicionales por año e idioma |
+| RF-03 | ✅ | Ficha con sinopsis, géneros, duración, estreno, dirección, protagonistas, reparto, trailer, puntuación y funciones |
+| RF-04 | ✅ | Fecha, hora, sala, formato, precio COP y disponibilidad exacta |
+| RF-05 | ✅ | Selección de una función identificable y navegable |
+| RF-06 | ✅ | Mapa dinámico con seis estados visuales y semánticos |
+| RF-07 | ✅ | Selección explícita por fila y número |
+| RF-08 | ✅ | Ubicación frontal/media/posterior e izquierda/centro/derecha |
+| RF-09 | ✅ | Selección múltiple y cantidad sincronizada; máximo ocho |
+| RF-10 | ✅ | Nombre, correo, película, función, cantidad, asientos y revalidación |
+| RF-11 | ✅ | Persistencia demo local o transaccional en Supabase |
+| RF-12 | ✅ | Precio unitario, cantidad y total en COP |
+| RF-13 | ✅ | Validaciones de sesión, términos, expiración, cantidad y conflicto |
+| RF-14 | ✅ | Reserva marca `reserved`; compra marca `sold` |
+| RF-15 | ✅ | Bloqueo de filas en RPC: dos usuarios no obtienen el mismo asiento |
+
+## Stack
+
+| Capa | Herramientas |
+|---|---|
+| UI | React 18, Vite 6, React Router, Tailwind CSS |
+| Motion | GSAP, ScrollTrigger, Lenis, Framer Motion |
+| 3D | Three.js, React Three Fiber, Drei |
+| Datos | TMDB API, Supabase Postgres, Edge Functions |
+| Identidad | Supabase Auth con fallback demo local |
+| Seguridad | RLS, grants explícitos y RPC transaccionales |
+| Calidad | Vitest, Playwright, ESLint |
+| Media | Higgsfield, FFmpeg, MP4, WebM, WebP |
+
+## Rutas
+
+| Ruta | Propósito |
+|---|---|
+| `/` | Apertura, cartelera, formatos, archivo GSAP y cierre |
+| `/cartelera` | Fechas, búsqueda, filtros, orden y horarios |
+| `/pelicula/:id` | Detalle, trailer, reparto, funciones y reseña |
+| `/persona/:id` | Biografía, filmografía y redes sociales |
+| `/funcion/:id/asientos` | Selección y hold de asientos |
+| `/checkout/:holdId` | Reserva o compra demostrativa |
+| `/cuenta` | Entradas, favoritos, watchlist e historial |
+| `/acceso` | Login, registro y recuperación |
+| `/experiencias` | Classic, Dolby Atmos e IMAX Laser |
+
+## Configuración local
+
+Requisitos: Node.js 18+ y un TMDB Read Access Token.
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-user/cine-animations.git
-cd cine-animations
-
-# 2. Install dependencies
 npm install
-
-# 3. Configure environment variables
-cp .env.example .env
-#   then edit .env and fill in your TMDB credentials:
-#   VITE_TMDB_API_KEY=your_api_key
-#   VITE_TMDB_TOKEN=your_bearer_token
-
-# 4. Start the development servers (Vite + json-server)
-npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Crea `.env.local`:
 
-> **Note:** The TMDB `Bearer` token is required for authenticated API requests. The app gracefully degrades when missing, but content will be limited.
+```dotenv
+TMDB_TOKEN=tu_read_access_token_de_tmdb
+VITE_TMDB_IMAGE_BASE=https://image.tmdb.org/t/p
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
 
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_TMDB_API_KEY` | TMDB API key | — |
-| `VITE_TMDB_TOKEN` | TMDB v4 Bearer token | — |
-| `VITE_TMDB_BASE_URL` | TMDB API base URL | `https://api.themoviedb.org/3` |
-| `VITE_TMDB_IMAGE_BASE` | TMDB image CDN base | `https://image.tmdb.org/t/p` |
-| `VITE_JSON_SERVER_URL` | Favorites API endpoint | `http://localhost:3001` |
-
----
-
-## 📝 Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start Vite + json-server together |
-| `npm run dev:vite` | Start Vite only |
-| `npm run dev:api` | Start json-server only |
-| `npm run build` | Production build |
-| `npm run preview` | Preview the production build |
-| `npm run lint` | Run ESLint |
-
-### Playwright CLI
-
-| Script | Description |
-|--------|-------------|
-| `npm run test:e2e` | Run the E2E test suite (headless) |
-| `npm run test:e2e:ui` | Open the interactive Playwright UI |
-| `npm run test:e2e:headed` | Run tests with visible browser |
-| `npm run test:e2e:report` | Open the HTML report |
-| `npm run pw:install` | Install the Playwright browsers |
-
-Before running E2E tests the first time:
+`TMDB_TOKEN` no se compila en el cliente. Durante desarrollo lo lee exclusivamente el middleware de Vite; en producción debe configurarse como secreto de la Edge Function:
 
 ```bash
-npm run pw:install
-npm run test:e2e
+supabase secrets set TMDB_TOKEN=tu_read_access_token_de_tmdb
+supabase functions deploy tmdb-proxy
 ```
 
----
+Ejecuta la aplicación:
 
-## 🧪 Project Structure
-
-```
-cine-animations/
-├── public/                 # static assets
-├── src/
-│   ├── api/                # TMDB API wrapper (Bearer auth)
-│   ├── components/         # all UI + scene components
-│   ├── hooks/              # useMouse, useMovies, useGenres, etc.
-│   ├── store/              # Zustand global store
-│   ├── styles/             # global CSS + cinema theme
-│   ├── utils/              # lerp, easing, math helpers
-│   ├── App.jsx             # app shell, section routing, modals
-│   └── main.jsx            # React entry
-├── tests/                  # Playwright E2E tests
-├── docs/                   # README images
-├── db.json                 # json-server favorites db
-├── playwright.config.js    # E2E configuration
-└── vite.config.js          # Vite + chunk-splitting config
+```bash
+npm run dev:vite
 ```
 
----
+Sin credenciales Supabase, la aplicación conserva un modo demo funcional con autenticación, holds, reservas, compras, favoritos, reseñas e historial locales.
 
-## 📸 Screenshots
+## Base de datos y seguridad
 
-> Skip a screenshot of your running app into a `docs/` folder and reference it here:
+Aplica las migraciones de `supabase/migrations` en orden. Las tablas públicas de cartelera tienen lectura controlada; holds, reservas, entradas y valoraciones están aislados por usuario. Las mutaciones de disponibilidad solo ocurren mediante wrappers RPC públicos que delegan en funciones del esquema `private`.
 
-```
-![Home](docs/home.png)
-```
-
----
-
-## 🧠 Architecture Notes
-
-- **Pinned hero:** `HeroSection` uses a `500vh` section with a `sticky` stage; GSAP orchestrates 5 animation phases as the user scrolls.
-- **State:** `useStore` is a Zustand store handling sections, favorites (with `json-server` persistence), auth, and the trailer modal.
-- **API:** `src/api/tmdb.js` centralizes TMDB calls behind a single `apiFetch` helper with Bearer auth and `es-ES` locale.
-- **Code splitting:** large 3D/three chunks are split via `manualChunks` in `vite.config.js`.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/awesome-feature`
-3. Commit with conventional messages + emojis (see below)
-4. Push and open a Pull Request
-
-### Commit Convention
-
-This repo uses **Conventional Commits** with **emoji types**:
-
-```
-:tada: feat:     new feature
-:bug: fix:       bug fix
-:fire: perf:     performance improvement
-:recycle: refactor:  code refactor (no behavior change)
-:sparkles: style:    styling / UI polish
-:test_tube: test:    adding or updating tests
-:books: docs:        documentation
-:memo: chore:        tooling / maintenance
+```bash
+supabase db push
 ```
 
----
+## Calidad
 
-## 📄 License
+```bash
+npm run lint
+npm test
+npm run build
+npm run test:e2e -- --project=chromium --project=mobile-chrome
+```
 
-[MIT](LICENSE)
+La suite incluye precio total, temporizador, límite de selección, normalización TMDB, estados de asiento y 14 recorridos en escritorio/Pixel 7, incluidos búsqueda global y “Ver más tarde”. Para regenerar las capturas del README con el servidor activo:
+
+```bash
+node scripts/capture-readme.mjs
+```
+
+## Rendimiento y accesibilidad
+
+- Lenis solo se activa en rutas narrativas y se omite en asientos, checkout y acceso.
+- ScrollTriggers y timelines se revierten al desmontar cada ruta.
+- Los trailers se cargan únicamente cuando se abre el reproductor.
+- El video nuevo no hace autoplay en móvil ni con movimiento reducido; se usa WebP.
+- R3F se carga de forma diferida y con DPR limitado.
+- Los carruseles ofrecen pausa, foco de teclado y una variante sin movimiento.
+- Todos los flujos críticos mantienen texto, labels y estados accesibles sin depender solo del color.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ using React, Three.js, GSAP & the TMDB API.</sub>
+  <strong>CINE ANIMATIONS · Bogotá, Colombia</strong><br/>
+  <sub>Checkout demostrativo. No procesa pagos reales.</sub>
 </div>

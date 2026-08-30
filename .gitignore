@@ -27,7 +27,9 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+.artifacts/
 
 # Misc
 *.local
 .cache/
+supabase/.temp/

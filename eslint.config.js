@@ -40,6 +40,7 @@ export default [
         clearTimeout: 'readonly',
         performance: 'readonly',
         URL: 'readonly',
+        URLSearchParams: 'readonly',
         HTMLElement: 'readonly',
         IntersectionObserver: 'readonly',
         MouseEvent: 'readonly',

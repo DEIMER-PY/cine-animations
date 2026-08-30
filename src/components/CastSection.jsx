@@ -54,36 +54,8 @@ export default function CastSection() {
         setLoading(true);
         setError(null);
 
-        const trendingRes = await fetch(
-          'https://api.themoviedb.org/3/trending/movie/week',
-          {
-            headers: {
-              Authorization: 'Bearer ' + import.meta.env.VITE_TMDB_TOKEN,
-            },
-          }
-        );
-
-        if (!trendingRes.ok) throw new Error('Failed to fetch trending movies');
-
-        const trendingData = await trendingRes.json();
-        const topMovies = trendingData.results.slice(0, 3);
-
-        const creditsResults = await Promise.all(
-          topMovies.map((movie) =>
-            fetch(
-              `https://api.themoviedb.org/3/movie/${movie.id}?append_to_response=credits`,
-              {
-                headers: {
-                  Authorization:
-                    'Bearer ' + import.meta.env.VITE_TMDB_TOKEN,
-                },
-              }
-            ).then((r) => {
-              if (!r.ok) throw new Error('Failed to fetch credits');
-              return r.json();
-            })
-          )
-        );
+        const topMovies = (await TMDB.fetchTrending()).slice(0, 3);
+        const creditsResults = await Promise.all(topMovies.map((movie) => TMDB.fetchMovieDetails(movie.id)));
 
         if (cancelled) return;
 

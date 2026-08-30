@@ -1,0 +1,17 @@
+import { chromium } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+await mkdir('docs/images', { recursive: true });
+await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
+await page.locator('.cinema-hero').waitFor();
+await page.screenshot({ path: 'docs/images/home-cinematic.png' });
+await page.locator('.movie-frames').scrollIntoViewIfNeeded();
+await page.waitForTimeout(900);
+await page.screenshot({ path: 'docs/images/movie-frames.png' });
+await page.goto('http://127.0.0.1:5173/cartelera', { waitUntil: 'networkidle' });
+await page.locator('.showtime-pill').first().click();
+await page.locator('.cinema-seat').first().waitFor();
+await page.screenshot({ path: 'docs/images/seat-selection.png', fullPage: true });
+await browser.close();

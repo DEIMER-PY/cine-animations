@@ -15,9 +15,9 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
     const dialog = dialogRef.current
     if (!dialog) return
 
-    if (isOpen) {
+    if (isOpen && !dialog.open) {
       dialog.showModal()
-    } else {
+    } else if (!isOpen && dialog.open) {
       dialog.close()
     }
   }, [isOpen])
@@ -96,7 +96,7 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
             <button
               onClick={onClose}
               className="fixed top-4 right-4 z-50 glass-panel-tight rounded-full p-2 text-white hover:bg-white/20 transition-colors cursor-pointer"
-              aria-label="Close trailer"
+              aria-label="Cerrar tráiler"
             >
               <X size={22} />
             </button>
@@ -105,14 +105,14 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
               {loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/60">
                   <div className="w-10 h-10 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
-                  <span className="text-sm font-medium">Loading trailers…</span>
+                  <span className="text-sm font-medium">Cargando tráiler…</span>
                 </div>
               )}
 
               {error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/60 px-6 text-center">
                   <Film size={40} className="opacity-40" />
-                  <span className="text-sm font-medium">Something went wrong loading the trailer.</span>
+                  <span className="text-sm font-medium">No pudimos cargar el tráiler.</span>
                   <span className="text-xs opacity-60">{error}</span>
                 </div>
               )}
@@ -129,7 +129,7 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
                   <div className="absolute inset-0 bg-black/60" />
                   <div className="relative z-10 flex flex-col items-center gap-2 text-white/70">
                     <Film size={44} className="opacity-50" />
-                    <span className="text-sm font-medium">No trailer available</span>
+                    <span className="text-sm font-medium">No hay tráiler disponible</span>
                   </div>
                 </div>
               )}
@@ -153,7 +153,7 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
             {relatedVideos.length > 0 && (
               <div className="w-full mt-5">
                 <p className="text-xs uppercase tracking-wider text-white/40 font-semibold mb-3 px-1">
-                  Related Videos
+                  Más videos
                 </p>
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                   {relatedVideos.map((video) => (

@@ -1,0 +1,30 @@
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, Bookmark, Heart, Play, Star } from 'lucide-react';
+import { getCinemaMovie } from '../api/cinema';
+import { listShowings, rateMovie } from '../api/booking';
+import { TMDB } from '../api/tmdb';
+import ShowtimePill from '../components/ShowtimePill';
+import MovieTile from '../components/MovieTile';
+import { useStore } from '../store/useStore';
+
+export default function MoviePage() {
+  const { id } = useParams(); const [movie, setMovie] = useState(null); const [showings, setShowings] = useState([]); const [rating, setRating] = useState(0); const [review, setReview] = useState(''); const [reviewSaved, setReviewSaved] = useState(false);
+  const openTrailer = useStore((state) => state.openTrailer); const user = useStore((state) => state.user); const favorite = useStore((state) => state.isFavorite(Number(id))); const addFavorite = useStore((state) => state.addFavorite); const removeFavorite = useStore((state) => state.removeFavorite);
+  const recordMovieView = useStore((state) => state.recordMovieView);
+  const queued = useStore((state) => state.isInWatchlist(Number(id))); const addToWatchlist = useStore((state) => state.addToWatchlist); const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
+  useEffect(() => { getCinemaMovie(id).then((item) => { setMovie(item); recordMovieView(item); return listShowings({ movieId: item.id, movies: [item] }); }).then(setShowings); }, [id, recordMovieView]);
+  if (!movie) return <div className="cinema-loading"><span>CINE</span><p>Cargando película</p></div>;
+  const director = movie.credits?.crew?.find((person) => person.job === 'Director');
+  const cast = movie.credits?.cast?.slice(0, 8) || [];
+  const similar = (movie.similar?.results || []).filter((item) => item.poster_path).slice(0, 6);
+  return <div className="movie-page">
+    <div className="movie-page__backdrop"><img src={TMDB.backdrop(movie.backdrop_path, 'original')} alt="" /><div /></div>
+    <Link to="/cartelera" className="movie-page__back"><ArrowLeft size={16} />CARTELERA</Link>
+    <section className="movie-page__hero"><div className="movie-page__poster"><img src={TMDB.poster(movie.poster_path, 'w500')} alt={`Póster de ${movie.title}`} /></div><div className="movie-page__copy"><p>EN CARTELERA · {movie.certification || '12+'}</p><h1>{movie.title}</h1><div className="movie-facts"><span>{movie.release_date?.slice(0, 4)}</span><span>{movie.runtime || 120} MIN</span><span>{movie.genres?.map((genre) => genre.name).join(' · ') || 'CINE'}</span><span><Star size={14} fill="currentColor" /> {Number(movie.vote_average || 0).toFixed(1)}</span></div><p className="movie-page__overview">{movie.overview}</p><div className="movie-credits-inline"><span>DIRIGE</span><strong>{director?.name || 'Información próximamente'}</strong><span>PROTAGONIZAN</span><strong>{cast.slice(0, 3).map((person) => person.name).join(' · ') || 'Reparto por confirmar'}</strong></div><div className="hero-actions"><button onClick={() => openTrailer(movie)} className="button-primary"><Play size={16} fill="currentColor" />VER TRÁILER</button><button onClick={() => queued ? removeFromWatchlist(movie.id) : addToWatchlist(movie)} className="button-ghost"><Bookmark size={16} fill={queued ? 'currentColor' : 'none'} />{queued ? 'EN VER MÁS TARDE' : 'VER MÁS TARDE'}</button><button onClick={() => favorite ? removeFavorite(movie.id) : addFavorite(movie)} className="button-ghost"><Heart size={16} fill={favorite ? 'currentColor' : 'none'} />{favorite ? 'EN FAVORITOS' : 'FAVORITO'}</button></div></div></section>
+    <section className="cast-rail"><div><p>REPARTO</p><h2>Delante y detrás<br /><em>de la cámara.</em></h2></div><div className="cast-rail__list">{cast.length ? cast.map((person) => <Link to={`/persona/${person.id}`} className="cast-person" key={person.id}><span>{person.profile_path ? <img src={TMDB.profile(person.profile_path)} alt={`Fotografía de ${person.name}`} loading="lazy" /> : <i>{person.name.slice(0, 1)}</i>}</span><strong>{person.name}</strong><small>{person.character || 'Reparto'}</small></Link>) : <p className="cast-empty">La información del reparto aún no está disponible.</p>}</div></section>
+    <section className="movie-page__showings"><div className="section-heading section-heading--dark"><div><p>FUNCIONES DISPONIBLES</p><h2>Elige cómo<br /><em>quieres verla.</em></h2></div></div><div className="movie-page__times">{showings.slice(0, 9).map((showing) => <ShowtimePill key={showing.id} showing={showing} />)}</div></section>
+    <section className="rating-panel"><div><p>TU OPINIÓN DESPUÉS DE LOS CRÉDITOS</p><h2>¿Qué te dejó la película?</h2></div><div className="rating-form"><div className="rating-stars" aria-label="Valorar película">{[1,2,3,4,5].map((score) => <button key={score} disabled={!user} onClick={() => { setRating(score); setReviewSaved(false); }} aria-label={`${score} estrellas`}><Star size={28} fill={score <= rating ? 'currentColor' : 'none'} /></button>)}</div>{user && <><textarea value={review} maxLength={1200} onChange={(event) => setReview(event.target.value)} placeholder="Escribe una reseña breve (opcional)…" /><button disabled={!rating} onClick={async () => { await rateMovie(movie.databaseId || String(movie.id), rating, review); setReviewSaved(true); }} className="button-ghost">{reviewSaved ? 'RESEÑA GUARDADA' : 'PUBLICAR VALORACIÓN'}</button></>}</div>{!user && <Link to={`/acceso?returnTo=/pelicula/${movie.id}`}>Inicia sesión para valorar</Link>}</section>
+    {similar.length > 0 && <section className="similar-movies"><header><p>PORQUE ELEGISTE ESTA HISTORIA</p><h2>MÁS COMO <em>ESTA.</em></h2></header><div>{similar.map((item, index) => <MovieTile key={item.id} movie={item} index={index} />)}</div></section>}
+  </div>;
+}

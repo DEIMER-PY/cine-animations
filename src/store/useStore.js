@@ -4,6 +4,8 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const GUEST_FAVORITES = 'cine:guest:favorites';
 const GUEST_WATCHLIST = 'cine:guest:watchlist';
+const DEMO_USER = 'cine:demo:user';
+const VIEW_HISTORY = 'cine:view:history';
 
 const readGuest = (key) => {
   try {
@@ -50,6 +52,7 @@ export const useStore = create((set, get) => ({
   selectedMovie: null,
   favorites: [],
   watchlist: [],
+  history: [],
   movies: [],
   loading: false,
   collectionLoading: false,
@@ -75,6 +78,12 @@ export const useStore = create((set, get) => ({
   setPreloaderProgress: (progress) => set({ preloaderProgress: progress }),
   setPreloaderDone: () => set({ isPreloaderDone: true }),
   setMovies: (movies) => set({ movies }),
+  recordMovieView: (movie) => {
+    const current = readGuest(VIEW_HISTORY).filter((item) => String(item.id) !== String(movie.id));
+    const next = [{ ...movie, viewedAt: new Date().toISOString() }, ...current].slice(0, 30);
+    writeGuest(VIEW_HISTORY, next);
+    set({ history: next });
+  },
 
   loadCollections: async (userId = get().user?.id) => {
     set({ collectionLoading: true });
@@ -95,8 +104,10 @@ export const useStore = create((set, get) => ({
 
   initializeApp: async () => {
     if (!supabase) {
+      const demoUser = readGuest(DEMO_USER);
+      set({ user: demoUser?.id ? demoUser : null, session: demoUser?.id ? { user: demoUser } : null });
       await get().loadCollections();
-      set({ authReady: true });
+      set({ authReady: true, history: readGuest(VIEW_HISTORY) });
       return;
     }
     const { data } = await supabase.auth.getSession();
@@ -109,7 +120,7 @@ export const useStore = create((set, get) => ({
       ]);
     }
     await get().loadCollections(session?.user?.id);
-    set({ authReady: true });
+    set({ authReady: true, history: readGuest(VIEW_HISTORY) });
     if (!get().authSubscription) {
       const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
         set({ session: nextSession, user: publicUser(nextSession?.user), authReady: true });
@@ -122,14 +133,26 @@ export const useStore = create((set, get) => ({
   loadFavorites: () => get().initializeApp(),
 
   signIn: async ({ email, password }) => {
-    if (!isSupabaseConfigured) throw new Error('Supabase no está configurado.');
+    if (!isSupabaseConfigured) {
+      if (!email || password?.length < 8) throw new Error('Ingresa un correo y una contraseña de mínimo 8 caracteres.');
+      const user = { id: `demo-${email.toLowerCase()}`, email: email.toLowerCase(), name: email.split('@')[0], demo: true };
+      writeGuest(DEMO_USER, user);
+      set({ user, session: { user }, authReady: true });
+      return { user, session: { user } };
+    }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   },
 
   signUp: async ({ email, password, displayName }) => {
-    if (!isSupabaseConfigured) throw new Error('Supabase no está configurado.');
+    if (!isSupabaseConfigured) {
+      if (!email || password?.length < 8 || !displayName?.trim()) throw new Error('Completa nombre, correo y una contraseña de mínimo 8 caracteres.');
+      const user = { id: `demo-${email.toLowerCase()}`, email: email.toLowerCase(), name: displayName.trim(), demo: true };
+      writeGuest(DEMO_USER, user);
+      set({ user, session: { user }, authReady: true });
+      return { user, session: { user } };
+    }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -140,18 +163,20 @@ export const useStore = create((set, get) => ({
   },
 
   requestPasswordReset: async (email) => {
-    if (!isSupabaseConfigured) throw new Error('Supabase no está configurado.');
+    if (!isSupabaseConfigured) return { email, demo: true };
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
     if (error) throw error;
   },
 
   updatePassword: async (password) => {
+    if (!isSupabaseConfigured) return { passwordUpdated: Boolean(password) };
     const { error } = await supabase.auth.updateUser({ password });
     if (error) throw error;
   },
 
   signOut: async () => {
     if (supabase) await supabase.auth.signOut();
+    else localStorage.removeItem(DEMO_USER);
     set({ session: null, user: null, favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST) });
   },
 
