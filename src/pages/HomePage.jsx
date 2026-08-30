@@ -14,6 +14,7 @@ import CinemaFooter from '../components/CinemaFooter';
 import AmbientVideo from '../components/AmbientVideo';
 import DiscoveryRails from '../components/DiscoveryRails';
 import CinemaExplorer from '../components/CinemaExplorer';
+import SpotlightDeck from '../components/SpotlightDeck';
 import { CINEMA_FORMATS, DEMO_MOVIES } from '../data/cinema';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -79,6 +80,7 @@ export default function HomePage() {
       <div className="movie-grid">{movies.slice(0, 4).map((movie, index) => <MovieTile key={movie.id} movie={movie} index={index} />)}</div>
     </section>
 
+    <SpotlightDeck movies={movies} />
     <DiscoveryRails seedMovies={movies} />
     <section className="format-story">
       <div className="format-story__intro"><p>02 · TRES FORMAS DE VER</p><h2>EL SONIDO NO SE OYE.<br /><span>ATRAVIESA.</span></h2><p>Salas diseñadas como instrumentos: imagen, arquitectura y sonido calibrados para desaparecer cuando empieza la película.</p></div>

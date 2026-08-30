@@ -2,27 +2,52 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Info, LoaderCircle, Ticket } from 'lucide-react';
 import { calculateTotal, getSeatMap, getShowing, holdSeats, subscribeToSeatMap, toggleSeatSelection } from '../api/booking';
+import { TMDB } from '../api/tmdb';
 import { formatCinemaDate, formatCinemaTime, formatCOP } from '../data/cinema';
 import { useStore } from '../store/useStore';
 
+const BOOKING_STEPS = ['PELÍCULA', 'ASIENTOS', 'CHECKOUT', 'ENTRADA'];
+
 export default function SeatSelectionPage() {
-  const { id } = useParams(); const location = useLocation(); const navigate = useNavigate(); const user = useStore((state) => state.user);
-  const [showing, setShowing] = useState(null); const [seats, setSeats] = useState([]); const [selected, setSelected] = useState([]); const [error, setError] = useState(''); const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const user = useStore((state) => state.user);
+  const [showing, setShowing] = useState(null);
+  const [seats, setSeats] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const load = useCallback(async () => { setShowing(await getShowing(id)); setSeats(await getSeatMap(id)); }, [id]);
+
   useEffect(() => { load(); const unsubscribe = subscribeToSeatMap(id, load); return unsubscribe; }, [id, load]);
+  useEffect(() => { const saved = new URLSearchParams(location.search).get('seats'); if (saved) setSelected(saved.split(',').slice(0, 8)); }, [location.search]);
   const rows = useMemo(() => seats.reduce((map, seat) => ({ ...map, [seat.row]: [...(map[seat.row] || []), seat] }), {}), [seats]);
   const total = calculateTotal(showing?.price, selected);
+
   const beginCheckout = async (operation) => {
     setError('');
     if (!selected.length) return setError('Selecciona al menos un asiento.');
     if (!user) return navigate(`/acceso?returnTo=${encodeURIComponent(location.pathname)}&seats=${selected.join(',')}&operation=${operation}`);
-    setLoading(true); try { const hold = await holdSeats(id, selected); navigate(`/checkout/${hold.id}?operation=${operation}`); } catch (reserveError) { setError(reserveError.message); await load(); } finally { setLoading(false); }
+    setLoading(true);
+    try { const hold = await holdSeats(id, selected); navigate(`/checkout/${hold.id}?operation=${operation}`); }
+    catch (reserveError) { setError(reserveError.message); await load(); }
+    finally { setLoading(false); }
   };
-  useEffect(() => { const saved = new URLSearchParams(location.search).get('seats'); if (saved) setSelected(saved.split(',').slice(0, 8)); }, [location.search]);
+
   if (!showing) return <div className="cinema-loading"><span>CINE</span><p>Abriendo la sala</p></div>;
   return <div className="seat-page">
-    <header className="booking-header"><Link to={`/pelicula/${showing.tmdb_id || showing.movie?.id}`}><ArrowLeft size={16} />VOLVER</Link><div><span>PASO 1 DE 2</span><strong>SELECCIÓN DE ASIENTOS</strong></div><span className="booking-timer">HOLD · 10:00</span></header>
-    <div className="seat-layout"><section className="seat-map" aria-labelledby="seat-title"><div className="seat-map__title"><p>{showing.movie?.title || showing.Pelicula?.titulo || 'FUNCIÓN ESPECIAL'}</p><h1 id="seat-title">ELIGE TU PUNTO<br /><em>DE VISTA</em></h1></div><div className="cinema-screen"><span>PANTALLA</span></div><div className="seat-grid">{Object.entries(rows).map(([row, rowSeats]) => <div className="seat-row" key={row}><span>{row}</span><div style={{ gridTemplateColumns: `repeat(${rowSeats.length}, minmax(24px, 1fr))` }}>{rowSeats.map((seat, index) => { const isSelected = selected.includes(seat.id); const disabled = ['sold', 'held', 'reserved'].includes(seat.status); const aisle = index === Math.floor(rowSeats.length / 3) - 1 || index === Math.floor(rowSeats.length * 2 / 3) - 1; return <button key={seat.id} disabled={disabled} onClick={() => setSelected((current) => toggleSeatSelection(current, seat.id))} className={`cinema-seat cinema-seat--${seat.status} ${isSelected ? 'is-selected' : ''} ${aisle ? 'has-aisle' : ''}`} aria-label={`Asiento ${seat.code || `${seat.row}${seat.number}`}, ${seat.location}, ${disabled ? 'no disponible' : isSelected ? 'seleccionado' : 'disponible'}`}><span>{seat.number}</span></button>; })}</div><span>{row}</span></div>)}</div><div className="seat-legend">{[['available','Disponible'],['selected','Tu selección'],['reserved','Reservado'],['sold','Vendido'],['accessible','Accesible']].map(([state,label]) => <span key={state}><i className={`legend-${state}`} />{label}</span>)}</div><p className="seat-note"><Info size={14} />La pantalla y las distancias son una representación aproximada de la sala.</p></section>
-      <aside className="booking-summary"><p>SU FUNCIÓN</p><h2>{showing.movie?.title}</h2><dl><div><dt>Fecha</dt><dd>{formatCinemaDate(showing.starts_at)}</dd></div><div><dt>Hora</dt><dd>{formatCinemaTime(showing.starts_at)}</dd></div><div><dt>Sala</dt><dd>{showing.room}</dd></div><div><dt>Formato</dt><dd>{showing.formatLabel} · {showing.language}</dd></div></dl><div className="selected-seats"><span>ASIENTOS Y UBICACIÓN</span><div>{selected.length ? selected.map((seatId) => { const seat = seats.find((item) => item.id === seatId); return <b key={seatId}>{seat?.code || seatId}<small>{seat?.location}</small></b>; }) : <small>Aún no seleccionas</small>}</div></div><div className="booking-total"><span>{selected.length} entrada{selected.length === 1 ? '' : 's'}</span><strong>{formatCOP(total)}</strong></div>{error && <p className="booking-error">{error}</p>}<div className="booking-actions"><button className="button-ghost booking-continue" onClick={() => beginCheckout('reservation')} disabled={loading || !selected.length}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : <Ticket size={17} />}{user ? 'RESERVAR' : 'RESERVAR E INICIAR SESIÓN'}</button><button className="button-primary booking-continue" onClick={() => beginCheckout('purchase')} disabled={loading || !selected.length}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : <Ticket size={17} />}{user ? 'COMPRAR' : 'COMPRAR E INICIAR SESIÓN'}</button></div><small className="booking-summary__fine">Máximo 8 asientos por operación. No se realiza ningún cobro real.</small></aside></div>
+    <header className="booking-header"><Link to={`/pelicula/${showing.tmdb_id || showing.movie?.id}`}><ArrowLeft size={16} />VOLVER</Link><ol className="booking-steps" aria-label="Progreso de compra">{BOOKING_STEPS.map((step, index) => <li key={step} className={index === 1 ? 'is-active' : index < 1 ? 'is-done' : ''}><span>0{index + 1}</span><strong>{index === 1 ? 'SELECCIÓN DE ASIENTOS' : step}</strong></li>)}</ol><span className="booking-timer">HOLD · 10:00</span></header>
+    <div className="seat-layout"><section className="seat-map" aria-labelledby="seat-title"><div className="seat-map__title"><p>{showing.movie?.title || showing.Pelicula?.titulo || 'FUNCIÓN ESPECIAL'}</p><h1 id="seat-title">ELIGE TU PUNTO<br /><em>DE VISTA</em></h1></div><div className="cinema-screen"><span>PANTALLA</span></div>
+      <div className="seat-grid">{Object.entries(rows).map(([row, rowSeats]) => <div className="seat-row" key={row}><span>{row}</span><div style={{ gridTemplateColumns: `repeat(${rowSeats.length}, minmax(24px, 1fr))` }}>{rowSeats.map((seat, index) => {
+        const isSelected = selected.includes(seat.id);
+        const disabled = ['sold', 'held', 'reserved'].includes(seat.status);
+        const aisle = index === Math.floor(rowSeats.length / 3) - 1 || index === Math.floor(rowSeats.length * 2 / 3) - 1;
+        return <button key={seat.id} disabled={disabled} onClick={() => setSelected((current) => toggleSeatSelection(current, seat.id))} className={`cinema-seat cinema-seat--${seat.status} ${isSelected ? 'is-selected' : ''} ${aisle ? 'has-aisle' : ''}`} aria-label={`Asiento ${seat.code || `${seat.row}${seat.number}`}, ${seat.location}, ${disabled ? 'no disponible' : isSelected ? 'seleccionado' : 'disponible'}`}><span>{seat.number}</span></button>;
+      })}</div><span>{row}</span></div>)}</div>
+      <div className="seat-legend">{[['available','Disponible'],['selected','Tu selección'],['reserved','Reservado'],['sold','Vendido'],['accessible','Accesible']].map(([state,label]) => <span key={state}><i className={`legend-${state}`} />{label}</span>)}</div><p className="seat-note"><Info size={14} />La pantalla y las distancias son una representación aproximada de la sala.</p></section>
+      <aside className="booking-summary"><div className="booking-summary__poster"><img src={TMDB.poster(showing.movie?.poster_path, 'w500')} alt={`Póster de ${showing.movie?.title || 'la película'}`} /><span>{showing.formatLabel}</span></div><p>SU FUNCIÓN</p><h2>{showing.movie?.title}</h2><dl><div><dt>Fecha</dt><dd>{formatCinemaDate(showing.starts_at)}</dd></div><div><dt>Hora</dt><dd>{formatCinemaTime(showing.starts_at)}</dd></div><div><dt>Sala</dt><dd>{showing.room}</dd></div><div><dt>Formato</dt><dd>{showing.formatLabel} · {showing.language}</dd></div></dl>
+        <div className="selected-seats"><span>ASIENTOS Y UBICACIÓN</span><div>{selected.length ? selected.map((seatId) => { const seat = seats.find((item) => item.id === seatId); return <b key={seatId}>{seat?.code || seatId}<small>{seat?.location}</small></b>; }) : <small>Aún no seleccionas</small>}</div></div><div className="booking-total"><span>{selected.length} entrada{selected.length === 1 ? '' : 's'}</span><strong>{formatCOP(total)}</strong></div>{error && <p className="booking-error">{error}</p>}
+        <div className="booking-actions"><button className="button-ghost booking-continue" onClick={() => beginCheckout('reservation')} disabled={loading || !selected.length}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : <Ticket size={17} />}{user ? 'RESERVAR' : 'RESERVAR E INICIAR SESIÓN'}</button><button className="button-primary booking-continue" onClick={() => beginCheckout('purchase')} disabled={loading || !selected.length}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : <Ticket size={17} />}{user ? 'COMPRAR' : 'COMPRAR E INICIAR SESIÓN'}</button></div><small className="booking-summary__fine">Máximo 8 asientos por operación. No se realiza ningún cobro real.</small></aside></div>
   </div>;
 }

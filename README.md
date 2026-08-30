@@ -22,6 +22,7 @@ React, TMDB y Supabase convertidos en una experiencia de cine funcional para Bog
 CINE ANIMATIONS combina navegación comercial inmediata con una narrativa visual inspirada en experiencias web cinematográficas. El usuario puede explorar sin cuenta; la autenticación aparece únicamente al confirmar un hold y devuelve a la función exacta que originó el flujo.
 
 - Home inmersiva con media local optimizada, escena 3D diferida, horarios utilizables y secuencias GSAP.
+- Cartelera protagonista en profundidad 3D con GSAP Draggable, swipe, teclado, trailer, funciones y “Mi lista”.
 - Descubrimiento tipo videoteca: Top 10, recomendaciones según actividad, crítica, próximos estrenos y carriles horizontales accesibles.
 - Búsqueda global desde teclado (`/` o `Ctrl/⌘ + K`) y navegación por películas, personas y géneros.
 - Cartelera de siete días con búsqueda por título o género, filtros de año, idioma y formato, y orden por popularidad, puntuación o estreno.
@@ -31,6 +32,12 @@ CINE ANIMATIONS combina navegación comercial inmediata con una narrativa visual
 - Reserva o compra demo diferenciadas, hold de diez minutos, revalidación y entrada digital.
 - Archivo con entradas, reservas, favoritos, “Ver más tarde” e historial; las colecciones anónimas permanecen en el dispositivo y se fusionan al iniciar sesión.
 - Login/registro/recuperación full-screen con retorno seguro al flujo de compra.
+
+## Cartelera en movimiento
+
+![Selector 3D de películas inspirado en interfaces editoriales de cine](docs/images/cosmos-spotlight.png)
+
+La selección principal se comporta como una marquesina espacial: siete películas rodean el foco, responden a arrastre, swipe, flechas y teclado, y actualizan título, valoración y acciones mediante una timeline GSAP. En móvil se convierte en una composición vertical táctil sin autoplay pesado.
 
 ## Radar editorial
 
