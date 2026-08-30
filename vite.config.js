@@ -4,6 +4,7 @@ import path from 'path';
 
 const allowedTmdbPaths = [
   /^\/trending\/movie\/(day|week)$/,
+  /^\/trending\/person\/(day|week)$/,
   /^\/movie\/(popular|top_rated|now_playing|upcoming)$/,
   /^\/movie\/\d+$/,
   /^\/search\/movie$/,

@@ -1,6 +1,7 @@
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const ALLOWED_PATHS = [
   /^\/trending\/movie\/(day|week)$/,
+  /^\/trending\/person\/(day|week)$/,
   /^\/movie\/(popular|top_rated|now_playing|upcoming)$/,
   /^\/movie\/\d+$/,
   /^\/search\/movie$/,

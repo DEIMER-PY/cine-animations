@@ -41,7 +41,7 @@ export const TMDB = {
 
   async fetchMovieDetails(id) {
     return apiFetch(`/movie/${id}`, {
-      append_to_response: 'credits,videos,similar',
+      append_to_response: 'credits,videos,similar,images',
     });
   },
 
@@ -64,6 +64,11 @@ export const TMDB = {
 
   async fetchPersonSearch(query) {
     const data = await apiFetch('/search/person', { query, page: '1' });
+    return data.results;
+  },
+
+  async fetchTrendingPeople() {
+    const data = await apiFetch('/trending/person/week', { page: '1' });
     return data.results;
   },
 

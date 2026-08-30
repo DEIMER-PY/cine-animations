@@ -7,6 +7,7 @@ test.describe('CINE ANIMATIONS premium flow', () => {
     await expect(page.getByRole('link', { name: 'CINE ANIMATIONS inicio' })).toBeVisible();
     await expect(page.getByText('COMPRAR ENTRADAS').first()).toBeVisible();
     await expect(page.getByText('AHORA EN PANTALLA')).toBeVisible();
+    await expect(page.locator('.cinema-explorer')).toBeAttached();
   });
 
   test('navigates through real showtime and movie routes', async ({ page }) => {
@@ -18,6 +19,7 @@ test.describe('CINE ANIMATIONS premium flow', () => {
     await page.locator('.schedule-row .movie-tile__image').first().click();
     await expect(page).toHaveURL(/\/pelicula\//);
     await expect(page.getByText('FUNCIONES DISPONIBLES')).toBeVisible();
+    await expect(page.locator('.movie-index')).toBeAttached();
   });
 
   test('opens an interactive seat map', async ({ page }) => {
@@ -54,6 +56,7 @@ test.describe('CINE ANIMATIONS premium flow', () => {
   });
 
   test('keeps an anonymous watch-later list on the device', async ({ page }) => {
+    await expect(page.locator('.cinema-home')).toHaveAttribute('data-catalog-ready', 'true', { timeout: 15000 });
     const tile = page.locator('.movie-tile').first();
     await tile.scrollIntoViewIfNeeded();
     await tile.hover();

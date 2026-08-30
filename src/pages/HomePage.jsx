@@ -13,6 +13,7 @@ import MovieFrames from '../components/MovieFrames';
 import CinemaFooter from '../components/CinemaFooter';
 import AmbientVideo from '../components/AmbientVideo';
 import DiscoveryRails from '../components/DiscoveryRails';
+import CinemaExplorer from '../components/CinemaExplorer';
 import { CINEMA_FORMATS, DEMO_MOVIES } from '../data/cinema';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,9 +24,10 @@ export default function HomePage() {
   const heroRef = useRef(null);
   const [movies, setMovies] = useState(() => DEMO_MOVIES.slice(0, 10));
   const [showings, setShowings] = useState([]);
+  const [catalogReady, setCatalogReady] = useState(false);
   const openTrailer = useStore((state) => state.openTrailer);
 
-  useEffect(() => { let active = true; getCinemaMovies('trending', 10).then((items) => { if (!active) return []; setMovies(items); return listShowings({ movies: items }); }).then((items) => { if (active) setShowings(items); }); return () => { active = false; }; }, []);
+  useEffect(() => { let active = true; getCinemaMovies('trending', 10).then((items) => { if (!active) return []; setMovies(items); return listShowings({ movies: items }); }).then((items) => { if (active) setShowings(items); }).finally(() => { if (active) setCatalogReady(true); }); return () => { active = false; }; }, []);
   useEffect(() => {
     if (!movies.length) return undefined;
     const media = gsap.matchMedia();
@@ -53,7 +55,7 @@ export default function HomePage() {
 
   const featured = movies[0];
   const featuredShowings = useMemo(() => featured ? showings.filter((item) => String(item.tmdb_id) === String(featured.id)).slice(0, 4) : [], [showings, featured]);
-  return <div ref={rootRef} className="cinema-home">
+  return <div ref={rootRef} className="cinema-home" data-catalog-ready={catalogReady}>
     <section ref={heroRef} className="cinema-hero" aria-labelledby="hero-title">
       <div className="hero-media">
         <img className="hero-media__image" src={TMDB.backdrop(featured.backdrop_path, 'original')} alt="" fetchPriority="high" />
@@ -78,11 +80,12 @@ export default function HomePage() {
     </section>
 
     <DiscoveryRails seedMovies={movies} />
-
     <section className="format-story">
       <div className="format-story__intro"><p>02 · TRES FORMAS DE VER</p><h2>EL SONIDO NO SE OYE.<br /><span>ATRAVIESA.</span></h2><p>Salas diseñadas como instrumentos: imagen, arquitectura y sonido calibrados para desaparecer cuando empieza la película.</p></div>
       <div className="format-story__panels">{Object.entries(CINEMA_FORMATS).map(([key, detail], index) => <article className="format-panel" key={key}><span>0{index + 1}</span><div><p>{key}</p><h3>{detail.label}</h3><small>{detail.room}</small></div><Link to={`/cartelera?format=${key}`}>DESCUBRIR <ArrowRight size={15} /></Link></article>)}</div>
     </section>
+
+    <CinemaExplorer movies={movies} />
 
     <section className="cinema-finale">
       <div className="cinema-finale__orb" /><p>LA PELÍCULA EMPIEZA ANTES DE LA PANTALLA</p><h2>ELIGE TU<br />PRÓXIMA <em>ESCENA.</em></h2><Link to="/cartelera" className="button-primary">COMPRAR ENTRADAS <ArrowRight size={17} /></Link>

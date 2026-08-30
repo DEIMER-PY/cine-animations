@@ -62,7 +62,7 @@ export default function MovieFrames({ movies: suppliedMovies = [] }) {
 
   return <section className="movie-frames" aria-labelledby="movie-frames-title">
     <div className="movie-frames__cinema"><video autoPlay muted loop playsInline poster="/media/cinema-movie-discovery.webp" aria-hidden="true"><source src="/media/cinema-movie-discovery.webm" type="video/webm" /><source src="/media/cinema-movie-discovery.mp4" type="video/mp4" /></video><div /></div>
-    <header><p>03 · ARCHIVO EN MOVIMIENTO</p><h2 id="movie-frames-title">TODAS LAS HISTORIAS.<br /><em>NINGUNA QUIETA.</em></h2><span>Explora el archivo · El movimiento se pausa al pasar el cursor</span></header>
+    <header><p>05 · ARCHIVO EN MOVIMIENTO</p><h2 id="movie-frames-title">TODAS LAS HISTORIAS.<br /><em>NINGUNA QUIETA.</em></h2><span>Explora el archivo · El movimiento se pausa al pasar el cursor</span></header>
     <div className="movie-frames__fade movie-frames__fade--left" /><div className="movie-frames__fade movie-frames__fade--right" />
     {ROWS.map((config, index) => <FrameRow key={config.label} movies={movies} config={config} rowIndex={index} />)}
   </section>;

@@ -32,6 +32,14 @@ CINE ANIMATIONS combina navegación comercial inmediata con una narrativa visual
 - Archivo con entradas, reservas, favoritos, “Ver más tarde” e historial; las colecciones anónimas permanecen en el dispositivo y se fusionan al iniciar sesión.
 - Login/registro/recuperación full-screen con retorno seguro al flujo de compra.
 
+## Radar editorial
+
+![Explorador editorial con talento, géneros y métricas](docs/images/editorial-explorer.png)
+
+Las referencias de catálogo se reinterpretan como una superficie propia: talento en tendencia enlazado a biografías y filmografías, ventanas por género, señales agregadas de la selección y un índice detallado dentro de cada película.
+
+![Índice de datos de una película](docs/images/movie-index.png)
+
 ## Archivo en movimiento
 
 ![MovieFrames animados con GSAP](docs/images/movie-frames.png)
