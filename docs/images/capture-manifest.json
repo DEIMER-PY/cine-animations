@@ -1,0 +1,124 @@
+{
+  "capturedAt": "2026-08-31T04:23:31.609Z",
+  "baseURL": "http://127.0.0.1:5173",
+  "catalog": "live TMDB / configured catalog",
+  "files": [
+    {
+      "file": "screening-hero.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-spotlight.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "editorial-explorer.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "movie-frames.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-people.png",
+      "route": "/personas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-series.png",
+      "route": "/series",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-login.png",
+      "route": "/acceso",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "movie-index.png",
+      "route": "/pelicula/969681",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "seat-selection.png",
+      "route": "/funcion/demo-0-969681-0/asientos",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-checkout.png",
+      "route": "/checkout/02d143db-0363-4740-8abc-e94eae5d1615",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Local demo hold; Supabase REST/Auth blocked"
+    },
+    {
+      "file": "screening-ticket.png",
+      "route": "/checkout/02d143db-0363-4740-8abc-e94eae5d1615",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Local demo purchase; no real payment or remote write"
+    },
+    {
+      "file": "screening-mobile.png",
+      "route": "/",
+      "viewport": {
+        "width": 412,
+        "height": 839
+      },
+      "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-seats-mobile.png",
+      "route": "/funcion/demo-0-969681-0/asientos",
+      "viewport": {
+        "width": 412,
+        "height": 839
+      },
+      "note": "Live catalog; no authenticated session"
+    }
+  ]
+}

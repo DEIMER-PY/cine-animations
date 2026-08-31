@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">CINE ANIMATIONS · arquitectura de la experiencia</title>
+  <desc id="desc">React conecta descubrimiento, compra y cuenta con catálogo normalizado, reservas y estado. Los datos provienen de TMDB mediante un proxy privado y de Supabase Auth, Postgres y Realtime. GSAP controla el movimiento. El entorno demo usa almacenamiento local y no pagos reales.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#18151e"/><stop offset="1" stop-color="#09090c"/></linearGradient>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3 0 6" fill="none" stroke="#c7ad72"/></marker>
+  </defs>
+  <rect width="1200" height="660" rx="20" fill="url(#bg)"/>
+  <g font-family="Arial, sans-serif">
+    <text x="44" y="48" fill="#cfb676" font-size="12" letter-spacing="4">CINE ANIMATIONS / SYSTEM MAP</text>
+    <text x="44" y="98" fill="#f4f0e8" font-size="36" font-weight="700">De la primera escena a tu entrada.</text>
+    <text x="44" y="126" fill="#aaa5ae" font-size="15">SPA React · catálogo dinámico · compra demostrativa · Bogotá</text>
+    <g stroke="#423a47" fill="#1c1922">
+      <rect x="44" y="165" width="344" height="108" rx="10"/>
+      <rect x="428" y="165" width="344" height="108" rx="10"/>
+      <rect x="812" y="165" width="344" height="108" rx="10"/>
+      <rect x="44" y="325" width="344" height="108" rx="10"/>
+      <rect x="428" y="325" width="344" height="108" rx="10"/>
+      <rect x="812" y="325" width="344" height="108" rx="10"/>
+      <rect x="44" y="485" width="344" height="108" rx="10"/>
+      <rect x="428" y="485" width="344" height="108" rx="10"/>
+      <rect x="812" y="485" width="344" height="108" rx="10"/>
+    </g>
+    <g fill="#e1c789" font-size="11" letter-spacing="2">
+      <text x="64" y="189">01 / DESCUBRIMIENTO</text><text x="448" y="189">02 / RESERVA</text><text x="832" y="189">03 / IDENTIDAD</text>
+    </g>
+    <g fill="#f4f0e8" font-size="21" font-weight="600">
+      <text x="64" y="222">Películas · Series · Personas</text><text x="448" y="222">Función → Asiento → Ticket</text><text x="832" y="222">Cuenta + colección</text>
+      <text x="64" y="364">Catalog / TMDB client</text><text x="448" y="364">Booking RPC</text><text x="832" y="364">Zustand + Supabase Auth</text>
+      <text x="64" y="524">Proxy privado → TMDB</text><text x="448" y="524">Postgres + RLS + Realtime</text><text x="832" y="524">Watchlist · Favoritos</text>
+    </g>
+    <g fill="#b0aab5" font-size="13">
+      <text x="64" y="248">React Router / GSAP / Motion / Tailwind</text><text x="448" y="248">COP · 8 asientos · hold de 10 minutos</text><text x="832" y="248">Explorar sin cuenta · guardar al entrar</text>
+      <text x="64" y="390">Normalización + caché de trailers</text><text x="448" y="390">Revalidación y bloqueo transaccional</text><text x="832" y="390">Sesión · retorno a la función original</text>
+      <text x="64" y="414">YouTube visible, sin capas por encima</text><text x="448" y="414">Wrappers públicos / funciones privadas</text><text x="832" y="414">Fusión de listas locales y remotas</text>
+      <text x="64" y="550">Vite dev / Edge Function prod</text><text x="448" y="550">Disponibilidad por función + usuario</text><text x="832" y="550">Historial / reseñas / series_watchlist</text>
+      <text x="64" y="574">TMDB_TOKEN nunca entra al bundle</text><text x="448" y="574">Demo local ≠ garantía multiusuario</text><text x="832" y="574">Migraciones remotas por desplegar</text>
+    </g>
+    <g stroke="#c7ad72" stroke-width="1.5" marker-end="url(#arrow)">
+      <path d="M216 275v42"/><path d="M600 275v42"/><path d="M984 275v42"/>
+      <path d="M216 435v42"/><path d="M600 435v42"/><path d="M984 435v42"/>
+    </g>
+    <path d="M44 622H1156" stroke="#38313d"/>
+    <text x="44" y="647" fill="#aaa5ae" font-size="11" letter-spacing="1">CALIDAD / ESLINT · VITEST · PLAYWRIGHT</text>
+    <text x="790" y="647" fill="#cfb676" font-size="11" letter-spacing="1">FEATURE → PR → DEVELOP / SIN COBROS REALES</text>
+  </g>
+</svg>
