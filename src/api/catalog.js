@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { TMDB } from './tmdb';
+import { rankTrailers } from '../utils/trailers';
+
+const trailerCache = new Map();
 
 const MOVIE_COLUMNS = 'id,tmdbId,titulo,tituloOriginal,sinopsis,fechaEstreno,duracionMinutos,clasificacion,calificacion,votos,posterUrl,fondoUrl,trailerUrl,idiomaOriginal,estado,popularidad,tendencia,enCartelera,proximamente';
 
@@ -34,6 +37,24 @@ export function normalizeMovie(row) {
   };
 }
 
+export function normalizeSeries(row) {
+  if (!row) return null;
+  return {
+    ...row,
+    id: row.tmdb_id ?? row.id,
+    media_type: 'tv',
+    title: row.name ?? row.title ?? 'Serie sin título',
+    name: row.name ?? row.title ?? 'Serie sin título',
+    original_title: row.original_name ?? row.original_title ?? row.name,
+    release_date: row.first_air_date ?? row.release_date ?? null,
+    first_air_date: row.first_air_date ?? row.release_date ?? null,
+    vote_average: Number(row.vote_average || 0),
+    vote_count: Number(row.vote_count || 0),
+    genres: row.genres ?? [],
+    genre_ids: row.genre_ids ?? [],
+  };
+}
+
 function normalizeFallback(movie) {
   return normalizeMovie({ ...movie, tmdbId: movie.id, databaseId: movie.databaseId ?? null });
 }
@@ -62,6 +83,15 @@ async function fallbackCategory(category) {
 }
 
 export const Catalog = {
+  async getTrailerCandidates(mediaType, id, originalLanguage = 'en') {
+    const key = `${mediaType}:${id}:${originalLanguage}`;
+    const cached = trailerCache.get(key);
+    if (cached && cached.expires > Date.now()) return cached.promise;
+    const promise = TMDB.fetchVideos(mediaType, id).then((data) => rankTrailers(data.results || [], originalLanguage)).catch((error) => { trailerCache.delete(key); throw error; });
+    trailerCache.set(key, { promise, expires: Date.now() + 300000 });
+    if (trailerCache.size > 100) trailerCache.delete(trailerCache.keys().next().value);
+    return promise;
+  },
   async fetchMovies(category = 'trending', limit = 30) {
     try {
       return await fetchCatalog(category, limit);
@@ -109,26 +139,44 @@ export const Catalog = {
 
   async commandSearch(query, limit = 8) {
     const value = query.trim().replace(/[%_]/g, '');
-    if (value.length < 2) return { movies: [], people: [], genres: [] };
+    if (value.length < 2) return { movies: [], series: [], people: [], genres: [] };
     const moviesPromise = this.search(value, limit);
     if (!supabase) {
-      const [movies, people, genres] = await Promise.all([moviesPromise, TMDB.fetchPersonSearch(value), TMDB.fetchGenres()]);
+      const [movies, series, people, genres, seriesGenres] = await Promise.all([moviesPromise, TMDB.fetchSeriesSearch(value), TMDB.fetchPersonSearch(value), TMDB.fetchGenres(), TMDB.fetchSeriesGenres()]);
       return {
         movies,
+        series: series.slice(0, limit).map(normalizeSeries),
         people: people.slice(0, 5).map((person) => ({ id: person.id, name: person.name, profilePath: person.profile_path, profession: person.known_for_department })),
-        genres: genres.filter((genre) => genre.name.toLowerCase().includes(value.toLowerCase())).slice(0, 5),
+        genres: [...new Map([...genres, ...seriesGenres].map((genre) => [genre.name, genre])).values()].filter((genre) => genre.name.toLowerCase().includes(value.toLowerCase())).slice(0, 5),
       };
     }
-    const [movies, peopleResult, genresResult] = await Promise.all([
+    const [movies, series, peopleResult, genresResult] = await Promise.all([
       moviesPromise,
+      TMDB.fetchSeriesSearch(value),
       supabase.from('Persona').select('id,tmdbId,nombre,fotoUrl,profesion').ilike('nombre', `%${value}%`).limit(5),
       supabase.from('Genero').select('id,nombre,slug').ilike('nombre', `%${value}%`).limit(5),
     ]);
     return {
       movies,
+      series: series.slice(0, limit).map(normalizeSeries),
       people: (peopleResult.data || []).map((person) => ({ id: person.tmdbId ?? person.id, name: person.nombre, profilePath: person.fotoUrl, profession: person.profesion })),
       genres: (genresResult.data || []).map((genre) => ({ id: genre.id, name: genre.nombre, slug: genre.slug })),
     };
+  },
+
+  async fetchSeries(category = 'trending', limit = 24) {
+    const loaders = {
+      popular: TMDB.fetchPopularSeries,
+      topRated: TMDB.fetchTopRatedSeries,
+      onAir: TMDB.fetchOnAirSeries,
+      trending: TMDB.fetchTrendingSeries,
+    };
+    const rows = await (loaders[category] || loaders.trending)();
+    return rows.slice(0, limit).map(normalizeSeries);
+  },
+
+  async fetchSeriesDetails(id) {
+    return normalizeSeries(await TMDB.fetchSeriesDetails(id));
   },
 
   async fetchGenres() {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Film, LoaderCircle, Search, Sparkles, UserRound, X } from 'lucide-react';
+import { Film, LoaderCircle, Search, Sparkles, Tv, UserRound, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Catalog } from '../api/catalog';
 import { TMDB } from '../api/tmdb';
@@ -11,7 +11,7 @@ export default function SearchPalette({ open, onClose }) {
   const requestRef = useRef(0);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState({ movies: [], people: [], genres: [] });
+  const [results, setResults] = useState({ movies: [], series: [], people: [], genres: [] });
   const navigate = useNavigate();
   const history = useStore((state) => state.history);
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function SearchPalette({ open, onClose }) {
   useEffect(() => {
     if (!open) {
       setQuery('');
-      setResults({ movies: [], people: [], genres: [] });
+      setResults({ movies: [], series: [], people: [], genres: [] });
       return undefined;
     }
     const previousOverflow = document.body.style.overflow;
@@ -32,7 +32,7 @@ export default function SearchPalette({ open, onClose }) {
 
   useEffect(() => {
     if (query.trim().length < 2) {
-      setResults({ movies: [], people: [], genres: [] });
+      setResults({ movies: [], series: [], people: [], genres: [] });
       setLoading(false);
       return undefined;
     }
@@ -52,7 +52,7 @@ export default function SearchPalette({ open, onClose }) {
     return () => window.clearTimeout(timer);
   }, [query]);
 
-  const count = useMemo(() => results.movies.length + results.people.length + results.genres.length, [results]);
+  const count = useMemo(() => results.movies.length + results.series.length + results.people.length + results.genres.length, [results]);
   const go = (path) => { onClose(); navigate(path); };
 
   return (
@@ -62,7 +62,7 @@ export default function SearchPalette({ open, onClose }) {
           <motion.section role="dialog" aria-modal="true" aria-label="Buscar en el archivo cinematográfico" className="h-fit max-h-[78vh] w-full max-w-3xl overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#0c0c0d]/95 shadow-[0_30px_100px_rgba(0,0,0,.75)]" initial={{ y: -24, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: -18, scale: 0.98 }}>
             <div className="flex items-center gap-4 border-b border-white/8 px-5 sm:px-7">
               {loading ? <LoaderCircle className="animate-spin text-cinema-accent" size={20} /> : <Search className="text-cinema-accent" size={20} />}
-              <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} className="h-20 flex-1 bg-transparent font-display text-2xl tracking-wide text-white outline-none placeholder:text-white/20" placeholder="BUSCA PELÍCULA, PERSONA O GÉNERO" aria-label="Consulta" />
+              <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} className="h-20 flex-1 bg-transparent font-display text-2xl tracking-wide text-white outline-none placeholder:text-white/20" placeholder="BUSCA PELÍCULA, SERIE, PERSONA O GÉNERO" aria-label="Consulta" />
               <button onClick={onClose} className="rounded-full border border-white/10 p-2 text-white/35 hover:text-white" aria-label="Cerrar búsqueda"><X size={17} /></button>
             </div>
 
@@ -90,6 +90,8 @@ export default function SearchPalette({ open, onClose }) {
                   </div>
                 </div>
               )}
+
+              {results.series.length > 0 && <div className="mt-6 border-t border-white/5 pt-5"><p className="mb-3 font-mono text-[9px] tracking-[.25em] text-cinema-gold">SERIES · {results.series.length}</p><div className="grid gap-2 sm:grid-cols-2">{results.series.map((series) => <button key={series.id} onClick={() => go(`/serie/${series.id}`)} className="group flex items-center gap-3 rounded-xl border border-transparent p-2 text-left transition hover:border-white/10 hover:bg-white/[.04]"><div className="grid h-16 w-11 shrink-0 place-items-center overflow-hidden rounded-md bg-white/5">{series.poster_path ? <img src={TMDB.poster(series.poster_path, 'w185')} alt="" className="h-full w-full object-cover" /> : <Tv size={18} className="text-white/20" />}</div><div className="min-w-0"><p className="truncate text-sm text-white/75 group-hover:text-white">{series.title}</p><p className="mt-1 font-mono text-[9px] tracking-wider text-white/25">{series.release_date?.slice(0, 4) || 'EN EMISIÓN'} · ★ {series.vote_average.toFixed(1)}</p></div></button>)}</div></div>}
 
               {(results.people.length > 0 || results.genres.length > 0) && (
                 <div className="mt-6 grid gap-6 border-t border-white/5 pt-5 sm:grid-cols-2">

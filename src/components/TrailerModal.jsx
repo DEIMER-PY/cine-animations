@@ -1,199 +1,75 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Play, Film } from 'lucide-react'
-import { Catalog } from '../api/catalog'
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ExternalLink, Film, RotateCcw, X } from 'lucide-react';
+import { Catalog } from '../api/catalog';
+import { TMDB } from '../api/tmdb';
+import ProjectionLoader from './ProjectionLoader';
+import YouTubePlayer from './YouTubePlayer';
 
-export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, movieBackdropPath }) {
-  const dialogRef = useRef(null)
-  const [trailer, setTrailer] = useState(null)
-  const [relatedVideos, setRelatedVideos] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [selectedVideo, setSelectedVideo] = useState(null)
-
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-
-    if (isOpen && !dialog.open) {
-      dialog.showModal()
-    } else if (!isOpen && dialog.open) {
-      dialog.close()
-    }
-  }, [isOpen])
+export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, movieBackdropPath, originRect, mediaType = 'movie', isDemo = false }) {
+  const dialogRef = useRef(null);
+  const portalRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const [entered, setEntered] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [videos, setVideos] = useState([]);
+  const [selected, setSelected] = useState(0);
+  const [attempt, setAttempt] = useState(0);
+  const [error, setError] = useState('');
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
-    if (!movieId) return
-
-    setLoading(true)
-    setError(null)
-    setTrailer(null)
-    setRelatedVideos([])
-    setSelectedVideo(null)
-
-    Catalog.fetchMovieDetails(movieId)
-      .then((data) => {
-        const ytVideos = (data?.videos?.results || []).filter((v) => v.site === 'YouTube')
-        const trailers = ytVideos.filter((v) => v.type === 'Trailer')
-        const mainTrailer = trailers.length > 0 ? trailers[0] : ytVideos[0] || null
-        const others = ytVideos.filter((v) => v.key !== mainTrailer?.key)
-
-        setTrailer(mainTrailer)
-        setRelatedVideos(others)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message)
-        setLoading(false)
-      })
-  }, [movieId])
+    if (!isOpen) return undefined;
+    const dialog = dialogRef.current;
+    const focus = document.activeElement;
+    if (!dialog.open) dialog.showModal();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const context = gsap.context(() => {
+      const rect = portalRef.current.getBoundingClientRect();
+      const from = originRect ? { x: originRect.left + originRect.width / 2 - rect.left - rect.width / 2, y: originRect.top + originRect.height / 2 - rect.top - rect.height / 2, scale: Math.max(.08, originRect.width / rect.width) } : { y: 35, scale: .8 };
+      gsap.timeline({ onComplete: () => setEntered(true) })
+        .from(portalRef.current, { ...from, rotationX: reduced ? 0 : -12, autoAlpha: 0, duration: reduced ? 0 : .7, ease: 'power4.inOut' }, 0)
+        .fromTo('.trailer-fan img', { x: 0, y: 70, rotationY: -65, autoAlpha: 0 }, { x: (index) => (index - 2) * 65, y: (index) => Math.abs(index - 2) * 18, rotation: (index) => (index - 2) * 8, rotationY: 0, autoAlpha: 1, duration: reduced ? 0 : .5, stagger: reduced ? 0 : .04 }, 0);
+    }, portalRef);
+    return () => { context.revert(); if (dialog.open) dialog.close(); if (focus?.isConnected) focus.focus(); };
+  }, [isOpen, originRect]);
 
   useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-
-    const handleClose = () => onClose()
-
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
-  }, [onClose])
+    let active = true;
+    setLoading(true); setError(''); setBlocked(false); setSelected(0);
+    (isDemo ? Promise.resolve([]) : Catalog.getTrailerCandidates(mediaType, movieId)).then((rows) => { if (active) setVideos(rows); })
+      .catch(() => { if (active) setError('No pudimos consultar los trailers.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [movieId, mediaType, attempt, isDemo]);
 
   useEffect(() => {
-    const dialog = dialogRef.current
-    return () => {
-      if (dialog && dialog.open) dialog.close()
-    }
-  }, [])
+    if (!closing) return undefined;
+    const tween = gsap.to(portalRef.current, { y: 25, scale: .93, autoAlpha: 0, duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : .25, ease: 'power2.in', onComplete: () => onCloseRef.current() });
+    return () => tween.kill();
+  }, [closing]);
 
-  const handleBackdropClick = (e) => {
-    if (e.target === dialogRef.current) {
-      onClose()
-    }
-  }
-
-  const activeVideo = selectedVideo || trailer
-  const backdropUrl = movieBackdropPath
-    ? `https://image.tmdb.org/t/p/w1280${movieBackdropPath}`
-    : null
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <dialog
-          ref={dialogRef}
-          onClick={handleBackdropClick}
-          className="bg-transparent p-0 border-none max-w-none max-h-none w-full h-full backdrop:bg-black/80 backdrop:backdrop-blur-sm"
-          style={{ colorScheme: 'dark' }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 24 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="flex flex-col items-center w-full max-w-[min(96vw,56rem)] mx-auto relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={onClose}
-              className="fixed top-4 right-4 z-50 glass-panel-tight rounded-full p-2 text-white hover:bg-white/20 transition-colors cursor-pointer"
-              aria-label="Cerrar tráiler"
-            >
-              <X size={22} />
-            </button>
-
-            <div className="w-full aspect-video rounded-xl overflow-hidden shadow-[0_24px_64px_rgb(0_0_0/_0.45)] bg-neutral-900 relative">
-              {loading && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/60">
-                  <div className="w-10 h-10 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
-                  <span className="text-sm font-medium">Cargando tráiler…</span>
-                </div>
-              )}
-
-              {error && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/60 px-6 text-center">
-                  <Film size={40} className="opacity-40" />
-                  <span className="text-sm font-medium">No pudimos cargar el tráiler.</span>
-                  <span className="text-xs opacity-60">{error}</span>
-                </div>
-              )}
-
-              {!loading && !error && !activeVideo && (
-                <div
-                  className="absolute inset-0 bg-cover bg-center flex flex-col items-center justify-center gap-3"
-                  style={
-                    backdropUrl
-                      ? { backgroundImage: `url(${backdropUrl})` }
-                      : undefined
-                  }
-                >
-                  <div className="absolute inset-0 bg-black/60" />
-                  <div className="relative z-10 flex flex-col items-center gap-2 text-white/70">
-                    <Film size={44} className="opacity-50" />
-                    <span className="text-sm font-medium">No hay tráiler disponible</span>
-                  </div>
-                </div>
-              )}
-
-              {!loading && !error && activeVideo && (
-                <iframe
-                  key={activeVideo.key}
-                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.key}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-                  title={activeVideo.name || `${movieTitle} trailer`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full border-0"
-                />
-              )}
-            </div>
-
-            <p className="mt-4 text-lg font-semibold text-white text-center px-4">
-              {movieTitle}
-            </p>
-
-            {relatedVideos.length > 0 && (
-              <div className="w-full mt-5">
-                <p className="text-xs uppercase tracking-wider text-white/40 font-semibold mb-3 px-1">
-                  Más videos
-                </p>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                  {relatedVideos.map((video) => (
-                    <button
-                      key={video.key}
-                      onClick={() => setSelectedVideo(video)}
-                      className={`flex-shrink-0 w-56 rounded-lg overflow-hidden border transition-colors cursor-pointer group ${
-                        selectedVideo?.key === video.key
-                          ? 'border-white/50 bg-white/10'
-                          : 'border-white/5 bg-white/[0.03] hover:bg-white/[0.07]'
-                      }`}
-                    >
-                      <div className="aspect-video relative bg-neutral-800">
-                        <img
-                          src={`https://img.youtube.com/vi/${video.key}/mqdefault.jpg`}
-                          alt={video.name}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Play
-                            size={28}
-                            className="text-white opacity-0 group-hover:opacity-90 transition-opacity drop-shadow-lg"
-                            fill="currentColor"
-                          />
-                        </div>
-                      </div>
-                      <div className="px-2.5 py-2 text-left">
-                        <p className="text-xs text-white/70 line-clamp-2 leading-snug">
-                          {video.name}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </dialog>
-      )}
-    </AnimatePresence>
-  )
+  const video = videos[selected];
+  const ready = entered && !loading;
+  const image = TMDB.backdrop(movieBackdropPath, 'w780');
+  const fail = () => {
+    if (selected + 1 < videos.length) setSelected((value) => value + 1);
+    else setError('YouTube no permite reproducir este trailer aquí o la conexión está bloqueada.');
+  };
+  if (!isOpen) return null;
+  return <dialog ref={dialogRef} className="trailer-dialog" aria-labelledby="trailer-heading" onCancel={(event) => { event.preventDefault(); setClosing(true); }} onClick={(event) => { if (event.target === event.currentTarget) setClosing(true); }}>
+    <div className="trailer-portal" ref={portalRef}>
+      <header className="trailer-toolbar"><span>PROYECCIÓN / {mediaType === 'tv' ? 'SERIE' : 'PELÍCULA'}</span><button onClick={() => setClosing(true)} aria-label="Cerrar trailer"><X size={21} /></button></header>
+      <div className="trailer-portal__screen">
+        {!ready && <div className="trailer-intro" data-testid="trailer-intro">{!entered && image ? <div className="trailer-fan" aria-hidden="true">{Array.from({ length: 5 }, (_, index) => <img key={index} src={image} alt="" />)}</div> : <ProjectionLoader label={`Preparando ${movieTitle}`} />}</div>}
+        {ready && (error || !video) && <div className="trailer-message"><Film size={32} /><strong>{error ? 'PROYECCIÓN INTERRUMPIDA' : 'TRAILER NO DISPONIBLE'}</strong><span>{error || 'Todavía no hay un trailer publicado para este título.'}</span><button onClick={() => setAttempt((value) => value + 1)}><RotateCcw size={16} />REINTENTAR</button>{video && <a href={`https://www.youtube.com/watch?v=${video.key}`} target="_blank" rel="noreferrer">VER EN YOUTUBE <ExternalLink size={14} /></a>}</div>}
+        {ready && video && !error && !closing && <YouTubePlayer key={`${video.key}-${attempt}`} videoId={video.key} title={video.name || movieTitle} onError={fail} onBlocked={() => setBlocked(true)} />}
+      </div>
+      {blocked && <p className="trailer-hint" role="status">Pulsa reproducir en el reproductor para iniciar el trailer.</p>}
+      <header><p>TRAILER COMPLETO</p><h2 id="trailer-heading">{movieTitle}</h2></header>
+      {ready && videos.length > 1 && <div className="trailer-related"><span>OTROS TRAILERS DE ESTE TÍTULO</span><div>{videos.map((item, index) => <button key={item.key} onClick={() => { setSelected(index); setError(''); setBlocked(false); }} className={index === selected ? 'is-active' : ''}><img src={`https://img.youtube.com/vi/${item.key}/mqdefault.jpg`} alt="" loading="lazy" /><strong>{item.name}</strong></button>)}</div></div>}
+    </div>
+  </dialog>;
 }

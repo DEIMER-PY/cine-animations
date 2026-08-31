@@ -3,14 +3,20 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 const allowedTmdbPaths = [
+  /^\/(movie|tv)\/\d+\/videos$/,
   /^\/trending\/movie\/(day|week)$/,
   /^\/trending\/person\/(day|week)$/,
+  /^\/trending\/tv\/(day|week)$/,
   /^\/movie\/(popular|top_rated|now_playing|upcoming)$/,
   /^\/movie\/\d+$/,
   /^\/search\/movie$/,
   /^\/search\/person$/,
   /^\/genre\/movie\/list$/,
   /^\/person\/\d+$/,
+  /^\/tv\/(popular|top_rated|on_the_air|airing_today)$/,
+  /^\/tv\/\d+$/,
+  /^\/search\/tv$/,
+  /^\/genre\/tv\/list$/,
 ];
 
 function tmdbLocalProxy(token) {

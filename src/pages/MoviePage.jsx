@@ -1,3 +1,4 @@
+import ProjectionLoader from '../components/ProjectionLoader';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Bookmark, Heart, Play, Star } from 'lucide-react';
@@ -14,7 +15,7 @@ export default function MoviePage() {
   const recordMovieView = useStore((state) => state.recordMovieView);
   const queued = useStore((state) => state.isInWatchlist(Number(id))); const addToWatchlist = useStore((state) => state.addToWatchlist); const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
   useEffect(() => { getCinemaMovie(id).then((item) => { setMovie(item); recordMovieView(item); return listShowings({ movieId: item.id, movies: [item] }); }).then(setShowings); }, [id, recordMovieView]);
-  if (!movie) return <div className="cinema-loading"><span>CINE</span><p>Cargando película</p></div>;
+  if (!movie) return <ProjectionLoader label="Cargando película" full />;
   const director = movie.credits?.crew?.find((person) => person.job === 'Director');
   const cast = movie.credits?.cast?.slice(0, 8) || [];
   const similar = (movie.similar?.results || []).filter((item) => item.poster_path).slice(0, 6);

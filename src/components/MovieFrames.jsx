@@ -1,3 +1,4 @@
+import MotionGallery from './MotionGallery';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -15,6 +16,7 @@ function FrameRow({ movies, config, rowIndex }) {
   const trackRef = useRef(null);
   const tweenRef = useRef(null);
   const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
   const reel = Array.from({ length: 10 }, (_, index) => movies[(index + rowIndex * 3) % movies.length]);
   const track = [...reel, ...reel];
 
@@ -25,16 +27,22 @@ function FrameRow({ movies, config, rowIndex }) {
         ? gsap.fromTo(trackRef.current, { xPercent: 0 }, { xPercent: -50, duration: config.duration, repeat: -1, ease: 'none' })
         : gsap.fromTo(trackRef.current, { xPercent: -50 }, { xPercent: 0, duration: config.duration, repeat: -1, ease: 'none' });
     }, trackRef);
-    return () => context.revert();
+    let visible = false;
+    const sync = () => tweenRef.current?.paused(pausedRef.current || !visible || document.hidden);
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); });
+    observer.observe(trackRef.current.parentElement);
+    document.addEventListener('visibilitychange', sync);
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); context.revert(); };
   }, [config.direction, config.duration, movies]);
 
   const toggle = () => {
     const next = !paused;
     setPaused(next);
+    pausedRef.current = next;
     tweenRef.current?.paused(next);
   };
 
-  return <div className="movie-frames__row" onMouseEnter={() => tweenRef.current?.pause()} onMouseLeave={() => { if (!paused) tweenRef.current?.play(); }}>
+  return <div className="movie-frames__row">
     <div className="movie-frames__row-label"><span>0{rowIndex + 1}</span>{config.label}</div>
     <button className="movie-frames__pause" onClick={toggle} aria-label={paused ? `Reproducir carrusel ${config.label}` : `Pausar carrusel ${config.label}`}>{paused ? <Play size={13} /> : <Pause size={13} />}</button>
     <div ref={trackRef} className="movie-frames__track">
@@ -61,8 +69,8 @@ export default function MovieFrames({ movies: suppliedMovies = [] }) {
   if (!movies.length) return <section className="movie-frames movie-frames--loading" aria-label="Cargando archivo cinematográfico"><div /><div /><div /></section>;
 
   return <section className="movie-frames" aria-labelledby="movie-frames-title">
-    <div className="movie-frames__cinema"><video autoPlay muted loop playsInline poster="/media/cinema-movie-discovery.webp" aria-hidden="true"><source src="/media/cinema-movie-discovery.webm" type="video/webm" /><source src="/media/cinema-movie-discovery.mp4" type="video/mp4" /></video><div /></div>
-    <header><p>05 · ARCHIVO EN MOVIMIENTO</p><h2 id="movie-frames-title">TODAS LAS HISTORIAS.<br /><em>NINGUNA QUIETA.</em></h2><span>Explora el archivo · El movimiento se pausa al pasar el cursor</span></header>
+    <MotionGallery items={movies} variant="fan" label="Archivo de películas" />
+    <header><p>05 · ARCHIVO EN MOVIMIENTO</p><h2 id="movie-frames-title">TODAS LAS HISTORIAS.<br /><em>NINGUNA QUIETA.</em></h2><span>Explora el archivo · Solo el control de pausa detiene la proyección</span></header>
     <div className="movie-frames__fade movie-frames__fade--left" /><div className="movie-frames__fade movie-frames__fade--right" />
     {ROWS.map((config, index) => <FrameRow key={config.label} movies={movies} config={config} rowIndex={index} />)}
   </section>;

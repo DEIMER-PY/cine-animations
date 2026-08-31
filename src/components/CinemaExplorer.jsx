@@ -1,9 +1,11 @@
+import MotionGallery from './MotionGallery';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Sparkles, Star, UserRound } from 'lucide-react';
 import { TMDB } from '../api/tmdb';
+import { assignUniqueGenreMovies } from '../utils/cinemaDiscovery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,13 +22,7 @@ export default function CinemaExplorer({ movies = [] }) {
     return () => { active = false; };
   }, []);
 
-  const genres = useMemo(() => {
-    const byName = new Map();
-    movies.forEach((movie) => (movie.genres || []).forEach((genre) => {
-      if (!byName.has(genre.name) && movie.backdrop_path) byName.set(genre.name, movie);
-    }));
-    return [...byName.entries()].slice(0, 6);
-  }, [movies]);
+  const genres = useMemo(() => assignUniqueGenreMovies(movies), [movies]);
 
   const metrics = useMemo(() => {
     const rated = movies.filter((movie) => Number(movie.vote_average));
@@ -47,6 +43,7 @@ export default function CinemaExplorer({ movies = [] }) {
 
   return <section ref={rootRef} className="cinema-explorer">
     <div className="talent-radar">
+      <MotionGallery items={people} type="person" variant="fan" label="Talentos en primer plano" />
       <header className="editorial-heading"><div><p>03 · PERSONAS EN TENDENCIA</p><h2>ROSTROS QUE<br /><em>MUEVEN LA PANTALLA.</em></h2></div><span>Biografías, créditos y redes verificadas por TMDB.</span></header>
       <div className="talent-radar__track">{people.length ? people.map((person, index) => <Link to={`/persona/${person.id}`} className="talent-card" key={person.id}>
         <span className="talent-card__portrait"><img src={TMDB.profile(person.profile_path, 'h632')} alt={`Retrato de ${person.name}`} loading="lazy" /><b>0{index + 1}</b></span>
@@ -56,7 +53,7 @@ export default function CinemaExplorer({ movies = [] }) {
 
     <div className="genre-explorer">
       <header><p>04 · ENCUENTRA TU TONO</p><h2>EXPLORA POR <em>GÉNERO.</em></h2></header>
-      <div>{genres.length ? genres.map(([genre, movie]) => <Link className="genre-window" to={`/cartelera?q=${encodeURIComponent(genre)}`} key={genre}><img src={TMDB.backdrop(movie.backdrop_path, 'w780')} alt="" loading="lazy" /><span /><p>{genre}</p><ArrowRight size={18} /></Link>) : FALLBACK_GENRES.map((genre) => <Link className="genre-window genre-window--empty" to={`/cartelera?q=${encodeURIComponent(genre)}`} key={genre}><p>{genre}</p><ArrowRight size={18} /></Link>)}</div>
+      <div>{genres.length ? genres.map(([genre, movie]) => <Link className="genre-window" data-movie-id={movie.id} to={`/cartelera?q=${encodeURIComponent(genre)}`} key={genre}><img src={TMDB.backdrop(movie.backdrop_path, 'w780')} alt="" loading="lazy" /><span /><p>{genre}</p><ArrowRight size={18} /></Link>) : FALLBACK_GENRES.map((genre) => <Link className="genre-window genre-window--empty" to={`/cartelera?q=${encodeURIComponent(genre)}`} key={genre}><p>{genre}</p><ArrowRight size={18} /></Link>)}</div>
     </div>
 
     <div className="cine-pulse">

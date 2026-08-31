@@ -4,6 +4,7 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const GUEST_FAVORITES = 'cine:guest:favorites';
 const GUEST_WATCHLIST = 'cine:guest:watchlist';
+const GUEST_SERIES_WATCHLIST = 'cine:guest:series-watchlist';
 const DEMO_USER = 'cine:demo:user';
 const VIEW_HISTORY = 'cine:view:history';
 
@@ -47,15 +48,33 @@ async function mergeGuestCollection(table, key, userId) {
   localStorage.removeItem(key);
 }
 
+async function fetchRemoteSeriesWatchlist(userId) {
+  const { data, error } = await supabase.from('series_watchlist').select('tmdb_id,snapshot,created_at').eq('user_id', userId).order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map((row) => ({ ...row.snapshot, id: row.tmdb_id, tmdb_id: row.tmdb_id, media_type: 'tv' }));
+}
+
+async function mergeGuestSeries(userId) {
+  const series = readGuest(GUEST_SERIES_WATCHLIST);
+  if (series.length) {
+    const rows = series.map((item) => ({ user_id: userId, tmdb_id: Number(item.id), snapshot: { ...item, media_type: 'tv' } }));
+    const { error } = await supabase.from('series_watchlist').upsert(rows, { onConflict: 'user_id,tmdb_id' });
+    if (error) throw error;
+  }
+  localStorage.removeItem(GUEST_SERIES_WATCHLIST);
+}
+
 export const useStore = create((set, get) => ({
   currentSection: 'home',
   selectedMovie: null,
   favorites: [],
   watchlist: [],
+  seriesWatchlist: [],
   history: [],
   movies: [],
   loading: false,
   collectionLoading: false,
+  collectionError: '',
   scrollProgress: 0,
   mousePosition: { x: 0, y: 0 },
   preloaderProgress: 0,
@@ -66,10 +85,12 @@ export const useStore = create((set, get) => ({
   showAuthModal: false,
   showTrailerModal: false,
   trailerMovie: null,
+  trailerOrigin: null,
+  trailerMediaType: 'movie',
 
   setShowAuthModal: (show) => set({ showAuthModal: show }),
-  openTrailer: (movie) => set({ showTrailerModal: true, trailerMovie: movie }),
-  closeTrailer: () => set({ showTrailerModal: false, trailerMovie: null }),
+  openTrailer: (movie, options = {}) => set({ showTrailerModal: true, trailerMovie: movie, trailerOrigin: options.originRect || null, trailerMediaType: options.mediaType || movie?.media_type || 'movie' }),
+  closeTrailer: () => set({ showTrailerModal: false, trailerMovie: null, trailerOrigin: null, trailerMediaType: 'movie' }),
   setSection: (section) => set({ currentSection: section }),
   setSelectedMovie: (movie) => set({ selectedMovie: movie }),
   clearSelectedMovie: () => set({ selectedMovie: null }),
@@ -86,16 +107,21 @@ export const useStore = create((set, get) => ({
   },
 
   loadCollections: async (userId = get().user?.id) => {
-    set({ collectionLoading: true });
+    set({ collectionLoading: true, collectionError: '' });
     try {
       if (userId && supabase) {
-        const [favorites, watchlist] = await Promise.all([
+        const results = await Promise.allSettled([
           fetchRemoteCollection('user_favorites', userId),
           fetchRemoteCollection('user_watchlist', userId),
+          fetchRemoteSeriesWatchlist(userId),
         ]);
-        set({ favorites, watchlist });
+        if (get().user?.id !== userId) return;
+        const keys = ['favorites', 'watchlist', 'seriesWatchlist'];
+        const localKeys = [GUEST_FAVORITES, GUEST_WATCHLIST, GUEST_SERIES_WATCHLIST];
+        const collections = Object.fromEntries(results.map((result, index) => [keys[index], [...new Map([...(result.status === 'fulfilled' ? result.value : get()[keys[index]]), ...readGuest(localKeys[index])].map((item) => [String(item.id), item])).values()]]));
+        set({ ...collections, collectionError: results.some((result) => result.status === 'rejected') ? 'Parte de tu colección no pudo sincronizarse. Tus elementos locales se conservan; puedes reintentar.' : '' });
       } else {
-        set({ favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST) });
+        set({ favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST), seriesWatchlist: readGuest(GUEST_SERIES_WATCHLIST) });
       }
     } finally {
       set({ collectionLoading: false });
@@ -114,9 +140,10 @@ export const useStore = create((set, get) => ({
     const session = data.session;
     set({ session, user: publicUser(session?.user) });
     if (session?.user) {
-      await Promise.all([
+      await Promise.allSettled([
         mergeGuestCollection('user_favorites', GUEST_FAVORITES, session.user.id),
         mergeGuestCollection('user_watchlist', GUEST_WATCHLIST, session.user.id),
+        mergeGuestSeries(session.user.id),
       ]);
     }
     await get().loadCollections(session?.user?.id);
@@ -124,7 +151,16 @@ export const useStore = create((set, get) => ({
     if (!get().authSubscription) {
       const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
         set({ session: nextSession, user: publicUser(nextSession?.user), authReady: true });
-        window.setTimeout(() => get().loadCollections(nextSession?.user?.id), 0);
+        window.setTimeout(async () => {
+          if (nextSession?.user) {
+            await Promise.allSettled([
+              mergeGuestCollection('user_favorites', GUEST_FAVORITES, nextSession.user.id),
+              mergeGuestCollection('user_watchlist', GUEST_WATCHLIST, nextSession.user.id),
+              mergeGuestSeries(nextSession.user.id),
+            ]);
+          }
+          await get().loadCollections(nextSession?.user?.id);
+        }, 0);
       });
       set({ authSubscription: listener.subscription });
     }
@@ -177,7 +213,7 @@ export const useStore = create((set, get) => ({
   signOut: async () => {
     if (supabase) await supabase.auth.signOut();
     else localStorage.removeItem(DEMO_USER);
-    set({ session: null, user: null, favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST) });
+    set({ session: null, user: null, favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST), seriesWatchlist: readGuest(GUEST_SERIES_WATCHLIST) });
   },
 
   addToCollection: async (type, movie) => {
@@ -227,4 +263,24 @@ export const useStore = create((set, get) => ({
   addToWatchlist: (movie) => get().addToCollection('watchlist', movie),
   removeFromWatchlist: (movieId) => get().removeFromCollection('watchlist', movieId),
   isInWatchlist: (movieId) => get().watchlist.some((movie) => String(movie.id) === String(movieId)),
+  addSeriesToWatchlist: async (series) => {
+    const current = get().seriesWatchlist;
+    if (current.some((item) => String(item.id) === String(series.id))) return;
+    const next = [{ ...series, media_type: 'tv' }, ...current];
+    set({ seriesWatchlist: next });
+    const userId = get().user?.id;
+    if (!userId || !supabase) return writeGuest(GUEST_SERIES_WATCHLIST, next);
+    const { error } = await supabase.from('series_watchlist').upsert({ user_id: userId, tmdb_id: Number(series.id), snapshot: { ...series, media_type: 'tv' } }, { onConflict: 'user_id,tmdb_id' });
+    if (error) { set({ seriesWatchlist: current }); throw error; }
+  },
+  removeSeriesFromWatchlist: async (seriesId) => {
+    const current = get().seriesWatchlist;
+    const next = current.filter((item) => String(item.id) !== String(seriesId));
+    set({ seriesWatchlist: next });
+    const userId = get().user?.id;
+    if (!userId || !supabase) return writeGuest(GUEST_SERIES_WATCHLIST, next);
+    const { error } = await supabase.from('series_watchlist').delete().eq('user_id', userId).eq('tmdb_id', Number(seriesId));
+    if (error) { set({ seriesWatchlist: current }); throw error; }
+  },
+  isSeriesInWatchlist: (seriesId) => get().seriesWatchlist.some((item) => String(item.id) === String(seriesId)),
 }));

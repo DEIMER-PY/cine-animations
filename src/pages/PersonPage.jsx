@@ -1,3 +1,4 @@
+import ProjectionLoader from '../components/ProjectionLoader';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import gsap from 'gsap';
@@ -32,7 +33,7 @@ export default function PersonPage() {
     return [...new Map(all.filter((item) => item.poster_path).sort((a, b) => Number(b.vote_count || 0) - Number(a.vote_count || 0)).map((item) => [`${item.media_type}-${item.id}`, item])).values()].slice(0, 16);
   }, [person]);
 
-  if (!person) return <div className="cinema-loading"><span>CINE</span><p>Abriendo el archivo de la persona</p></div>;
+  if (!person) return <ProjectionLoader label="Abriendo el archivo de la persona" full />;
   const social = person.external_ids || {};
   return <div ref={rootRef} className="person-page">
     <button onClick={() => navigate(-1)} className="person-page__back"><ArrowLeft size={15} />VOLVER A LA PELÍCULA</button>
@@ -40,7 +41,7 @@ export default function PersonPage() {
       <div className="person-hero__portrait">{person.profile_path ? <img src={TMDB.profile(person.profile_path, 'h632')} alt={`Retrato de ${person.name}`} /> : <i>{person.name.slice(0, 1)}</i>}</div>
       <div className="person-hero__copy"><p>ARCHIVO DE TALENTO · {person.known_for_department?.toUpperCase()}</p><h1>{person.name}</h1><dl><div><dt>NACE</dt><dd>{person.birthday || 'Sin dato público'}</dd></div><div><dt>ORIGEN</dt><dd>{person.place_of_birth || 'Sin dato público'}</dd></div><div><dt>CRÉDITOS</dt><dd>{credits.length}+ seleccionados</dd></div></dl><div className={`person-biography ${expanded ? 'is-expanded' : ''}`}><p>{person.biography || 'TMDB todavía no publica una biografía en español para esta persona.'}</p></div>{person.biography?.length > 480 && <button className="person-more" onClick={() => setExpanded((value) => !value)}>{expanded ? 'LEER MENOS' : 'LEER BIOGRAFÍA COMPLETA'}</button>}<div className="person-socials">{social.instagram_id && <a href={`https://instagram.com/${social.instagram_id}`} target="_blank" rel="noreferrer" aria-label="Instagram"><SocialGlyph type="instagram" /></a>}{social.facebook_id && <a href={`https://facebook.com/${social.facebook_id}`} target="_blank" rel="noreferrer" aria-label="Facebook"><SocialGlyph type="facebook" /></a>}{social.imdb_id && <a href={`https://www.imdb.com/name/${social.imdb_id}`} target="_blank" rel="noreferrer">IMDb <ExternalLink size={13} /></a>}</div></div>
     </section>
-    <section className="person-filmography"><header><p>FILMOGRAFÍA SELECCIONADA</p><h2>HISTORIAS EN LAS QUE<br /><em>DEJÓ SU HUELLA.</em></h2></header><div>{credits.map((credit) => <Link className="person-credit" to={credit.media_type === 'movie' ? `/pelicula/${credit.id}` : `/cartelera?focus=search&q=${encodeURIComponent(credit.name || credit.title)}`} key={`${credit.media_type}-${credit.id}`}><img src={TMDB.poster(credit.poster_path, 'w342')} alt={`Póster de ${credit.title || credit.name}`} loading="lazy" /><span>{credit.release_date?.slice(0, 4) || credit.first_air_date?.slice(0, 4) || '—'} · {credit.character || credit.job || credit.media_type}</span><strong>{credit.title || credit.name}</strong></Link>)}</div></section>
+    <section className="person-filmography"><header><p>FILMOGRAFÍA SELECCIONADA</p><h2>HISTORIAS EN LAS QUE<br /><em>DEJÓ SU HUELLA.</em></h2></header><div>{credits.map((credit) => <Link className="person-credit" to={credit.media_type === 'movie' ? `/pelicula/${credit.id}` : `/serie/${credit.id}`} key={`${credit.media_type}-${credit.id}`}><img src={TMDB.poster(credit.poster_path, 'w342')} alt={`Póster de ${credit.title || credit.name}`} loading="lazy" /><span>{credit.release_date?.slice(0, 4) || credit.first_air_date?.slice(0, 4) || '—'} · {credit.character || credit.job || credit.media_type}</span><strong>{credit.title || credit.name}</strong></Link>)}</div></section>
     <CinemaFooter />
   </div>;
 }
