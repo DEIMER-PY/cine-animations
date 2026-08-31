@@ -133,15 +133,15 @@ stateDiagram-v2
 - Scroll vertical único del documento: el resumen de asientos no tiene altura fija ni scroll propio. Hasta 1100 px pasa debajo del mapa; solo la cuadrícula puede desplazarse horizontalmente en móviles estrechos.
 - Puntero nativo del sistema. Hover conserva feedback visual y los controles de teclado siguen activos.
 - GSAP anima transformaciones/opacidad y revierte contextos al desmontarse. El marquee no se detiene con hover; tiene pausa explícita y suspensión fuera de vista.
-- `RotatingHero` muestra un trailer asociado al título durante ocho segundos efectivos, con arbitraje de un solo reproductor. Un iframe se pausa al abrir el modal, ocultar la pestaña o perder visibilidad.
-- `TrailerModal` ejecuta el abanico antes de montar YouTube. Ninguna capa tapa el reproductor.
-- Mobile, ahorro de datos y movimiento reducido requieren reproducción manual. Los pósteres siguen siendo utilizables sin autoplay.
+- `RotatingHero` sincroniza fotografía, título, géneros y funciones cada ocho segundos. `EditorialBackdrop` carga y funde dos imágenes, usa WebP local cuando coincide el ID/backdrop del manifiesto y recurre a TMDB para nuevos títulos. El avance se pausa fuera de vista, al ocultar la pestaña o abrir el modal.
+- `TrailerModal` ejecuta un abanico y muestra enlaces al candidato de YouTube confirmado, con alternativa en la misma pestaña. No hay iframe, SDK ni descarga del vídeo.
+- Ahorro de datos y movimiento reducido desactivan la rotación y el desplazamiento de fondos. Los controles manuales y todo el contenido permanecen disponibles.
 
 ### ¿Por qué no un trailer YouTube detrás del texto?
 
 Las [reglas del reproductor de YouTube](https://developers.google.com/youtube/terms/required-minimum-functionality#overlays-and-frames) impiden tapar cualquier parte del iframe con contenido. Las [políticas de datos audiovisuales](https://developers.google.com/youtube/terms/developer-policies) también restringen descargar/cachear sus vídeos sin autorización. Servirlo desde localhost no cambia esas condiciones.
 
-Para un verdadero fondo sin el marco de YouTube se necesita un MP4/WebM entregado por el titular con autorización de uso y alojamiento. Con ese recurso, un `<video muted playsInline>` puede ir detrás de la composición, con pausa, fallback de imagen y restricciones de autoplay. **No se han descargado trailers ni implementado un fondo nuevo en esta corrección.** Los clips de Cosmos siguen siendo referencias, no fondos.
+Para un verdadero fondo sin el marco de YouTube se necesita un MP4/WebM entregado por el titular con autorización de uso y alojamiento. Con ese recurso, un `<video muted playsInline>` puede ir detrás de la composición, con pausa, fallback de imagen y restricciones de autoplay. **Esta corrección usa fondos fotográficos WebP, no trailers descargados.** Los clips de Cosmos siguen siendo referencias, no fondos.
 
 ## Pendiente de infraestructura
 

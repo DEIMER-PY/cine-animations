@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-08-31T04:23:31.609Z",
+  "capturedAt": "2026-08-31T10:38:39.600Z",
   "baseURL": "http://127.0.0.1:5173",
   "catalog": "live TMDB / configured catalog",
   "files": [
@@ -11,6 +11,15 @@
         "height": 1000
       },
       "note": "Live catalog; no authenticated session"
+    },
+    {
+      "file": "screening-trailer.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "note": "Live TMDB trailer candidate; external link, no iframe or video playback"
     },
     {
       "file": "screening-spotlight.png",
@@ -86,7 +95,7 @@
     },
     {
       "file": "screening-checkout.png",
-      "route": "/checkout/02d143db-0363-4740-8abc-e94eae5d1615",
+      "route": "/checkout/0b3b338e-07ee-42d0-b443-f46336c0c82d",
       "viewport": {
         "width": 1440,
         "height": 1000
@@ -95,7 +104,7 @@
     },
     {
       "file": "screening-ticket.png",
-      "route": "/checkout/02d143db-0363-4740-8abc-e94eae5d1615",
+      "route": "/checkout/0b3b338e-07ee-42d0-b443-f46336c0c82d",
       "viewport": {
         "width": 1440,
         "height": 1000

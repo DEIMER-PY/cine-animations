@@ -1,135 +1,213 @@
 <div align="center">
 
+![CINE ANIMATIONS: descubre tu próxima historia](docs/banner.svg)
+
 # CINE ANIMATIONS
 
-### Una cartelera premium que comienza antes de apagar las luces
+**Descubrir cine. Elegir una función. Construir tu archivo.**
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=fff)](https://vite.dev/)
-[![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-88CE02?logo=greensock&logoColor=111)](https://gsap.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Postgres_·_Auth_·_Realtime-3FCF8E?logo=supabase&logoColor=fff)](https://supabase.com/)
-[![TMDB](https://img.shields.io/badge/TMDB-Data_API-01B4E4?logo=themoviedatabase&logoColor=fff)](https://developer.themoviedb.org/)
-[![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?logo=playwright&logoColor=fff)](https://playwright.dev/)
+Una experiencia web cinematográfica para Bogotá, con catálogo TMDB, animaciones GSAP y un recorrido de reserva y compra demostrativa.
 
-React, TMDB y Supabase convertidos en una experiencia de cine funcional para Bogotá: descubrir, elegir función, seleccionar asientos, reservar o completar una compra demostrativa.
+<p>
+  <img src="docs/icons/react.svg" width="32" height="32" alt="React" />
+  &nbsp;
+  <img src="docs/icons/vitejs.svg" width="32" height="32" alt="Vite" />
+  &nbsp;
+  <img src="docs/icons/gsap.svg" width="32" height="32" alt="GSAP" />
+  &nbsp;
+  <img src="docs/icons/tailwindcss.svg" width="32" height="32" alt="Tailwind CSS" />
+  &nbsp;
+  <img src="docs/icons/tmdb.svg" width="32" height="32" alt="TMDB" />
+  &nbsp;
+  <img src="docs/icons/supabase.svg" width="32" height="32" alt="Supabase" />
+  &nbsp;
+  <img src="docs/icons/playwright.svg" width="32" height="32" alt="Playwright" />
+</p>
+
+**React 18 · Vite · JavaScript · Español Colombia · COP**
 
 </div>
 
-[Experiencia](#la-experiencia) · [Arquitectura y esquema de datos](docs/ARCHITECTURE.md) · [Pruebas](docs/TESTING.md) · [Features → develop](docs/CONTRIBUTING.md)
+> **Estado del proyecto:** prototipo funcional con catálogo real de TMDB y compra demo. La última validación local registró **15 pruebas unitarias y 78 E2E correctas**, además de lint y build. Supabase no estaba configurado: autenticación real, correos, concurrencia y políticas remotas siguen pendientes de validación. [Ver evidencia y límites](docs/TESTING.md).
 
-![Portada con trailer real y controles de proyección](docs/images/screening-hero.png)
+## Contenido
 
-<details>
-<summary>Vista móvil: reproducción bajo demanda y navegación de bolsillo</summary>
+[Propósito](#proposito) · [Mapa mental](#mapa-mental) · [Funcionalidades](#funcionalidades) · [Galería](#galeria) · [Arquitectura](#arquitectura) · [Stack](#stack) · [Instalación](#instalacion) · [Calidad](#calidad) · [Contribuir](#contribuir)
 
-<img src="docs/images/screening-mobile.png" alt="Portada de CINE ANIMATIONS a 412 × 915, sin autoplay" width="320" />
+<a id="proposito"></a>
 
-</details>
+## <img src="docs/icons/purpose.svg" width="26" height="26" alt="" /> Lo que buscamos con el programa
 
-## La experiencia
+**Acercar el descubrimiento de una historia a la decisión de verla en una sala.** CINE ANIMATIONS reúne información que normalmente se consulta por separado: qué ver, quién participa, cuándo hay funciones y qué asientos elegir.
 
-CINE ANIMATIONS combina navegación comercial inmediata con una narrativa visual inspirada en experiencias web cinematográficas. El usuario puede explorar sin cuenta; la autenticación aparece únicamente al confirmar un hold y devuelve a la función exacta que originó el flujo.
+La propuesta combina tres objetivos:
 
-- Home con hasta cinco películas TMDB y trailers reales de YouTube: avances silenciosos de ocho segundos de reproducción efectiva, pausa, cambio de título y funciones.
-- Cartelera protagonista en profundidad 3D con GSAP: clic en pósteres laterales y flechas de teclado; sin rueda, arrastre, selección por hover ni autoavance.
-- Descubrimiento tipo videoteca: Top 10, recomendaciones según actividad, crítica, próximos estrenos y carriles horizontales accesibles.
-- Búsqueda global desde teclado (`/` o `Ctrl/⌘ + K`) y navegación agrupada por películas, series, personas y géneros.
-- Cartelera de siete días con búsqueda por título o género, filtros de año, idioma y formato, y orden por popularidad, puntuación o estreno.
-- Ficha con trailer bajo demanda, dirección, reparto, funciones, favoritos, valoración y reseña.
-- Perfil individual de actores/directores con biografía, filmografía y enlaces sociales obtenidos de TMDB.
-- Catálogo de series con tendencias, mejor valoradas, en emisión, búsqueda, temporadas, reparto, trailers, similares y watchlist sincronizable.
-- Directorio de personas con muro 3D inspirado en interfaces multimedia, biografías, créditos de cine/TV y redes sociales.
-- Sala dinámica con pantalla curva, escaleras iluminadas, pasillos, zonas, accesibilidad, ubicación, ocho asientos máximos y estados Realtime.
-- Reserva o compra demo diferenciadas, hold de diez minutos, revalidación y entrada digital con diseño de ticket perforado.
-- Archivo con entradas, reservas, favoritos, “Ver más tarde” e historial; las colecciones anónimas permanecen en el dispositivo y se fusionan al iniciar sesión.
-- Login/registro/recuperación full-screen con retorno seguro al flujo de compra.
-
-## Cartelera en movimiento
-
-![Selector 3D de películas inspirado en interfaces editoriales de cine](docs/images/screening-spotlight.png)
-
-Siete películas rodean el foco. Pulsar un póster lateral o una flecha avanza una posición; pulsar el central abre su ficha. Hover y foco no cambian la selección, y el scroll vertical permanece libre. Las transiciones usan transformaciones y opacidad con limpieza al desmontarse.
-
-## Proyección real, no vídeos de interfaces
-
-![Trailer completo abierto en el reproductor](docs/images/screening-trailer.png)
-
-Los MP4 y el GIF de Cosmos se utilizan únicamente como referencias de diseño. No se sirven sus derivados: el abanico editorial, el muro curvo, los paneles y los tickets son componentes React/GSAP con contenido real de TMDB. Los originales del usuario no se modificaron.
-
-`Catalog.getTrailerCandidates(mediaType, id, originalLanguage)` consulta los vídeos del título, elimina duplicados y prioriza trailers oficiales en español, inglés e idioma original. Ambos proxies permiten `/movie/:id/videos` y `/tv/:id/videos`. La caché de candidatos dura cinco minutos; una respuesta obsoleta no sustituye el título activo.
-
-El iframe queda libre de texto y superposiciones. Solo un reproductor puede estar activo; se pausa al ocultar la pestaña, salir de pantalla o abrir el modal. En móvil, ahorro de datos y movimiento reducido se requiere clic. Si el navegador bloquea autoplay, aparece un control manual. No se descargan ni convierten vídeos de YouTube.
-
-El modal inicia una consulta junto a un abanico 3D de unos 700 ms y monta el iframe después. Incluye Escape, restauración de foco, reintento, alternativas del mismo título y enlace externo si YouTube restringe la inserción. Los títulos ficticios del modo demo no se utilizan para buscar trailers de películas reales.
-
-## Radar editorial
-
-![Entrada al directorio de Personas](docs/images/screening-people.png)
-
-![Explorador editorial con talento, géneros y métricas](docs/images/editorial-explorer.png)
-
-Las referencias de catálogo se reinterpretan como una superficie propia: talento en tendencia enlazado a biografías y filmografías, ventanas por género, señales agregadas de la selección y un índice detallado dentro de cada película.
-
-![Índice de datos de una película](docs/images/movie-index.png)
-
-## Archivo en movimiento
-
-![MovieFrames animados con GSAP](docs/images/movie-frames.png)
-
-Los `MovieFrames` originales regresaron antes del footer. Son tres loops GSAP bidireccionales que enlazan a fichas reales y continúan durante el hover. Su botón permite pausarlos; también se suspenden fuera del viewport o con la pestaña oculta. En movimiento reducido quedan estáticos y desplazables manualmente. La escena superior es un abanico de pósteres interactivos, no un MP4.
-
-## Selección de asientos
-
-![Mapa interactivo de asientos](docs/images/seat-selection.png)
-
-El mapa se genera a partir de la función seleccionada y diferencia `available`, `selected`, `held`, `reserved`, `sold` y `accessible`. La interfaz informa código, zona física, cantidad, precio unitario y total; el navegador nunca actualiza disponibilidad directamente.
-
-El resumen ya no tiene scroll interno: toda la página se desplaza como una sola superficie. En tablet y móvil el resumen pasa debajo de la sala. Se utiliza el puntero nativo, sin círculo personalizado ni barra roja artificial. La cuadrícula conserva desplazamiento horizontal cuando el ancho de pantalla no permite mostrar todos los asientos.
-
-## Del acceso a la entrada
-
-| Acceso personal | Checkout demostrativo |
+| Objetivo | Cómo se traduce en el producto |
 |---|---|
-| ![Login de cine](docs/images/screening-login.png) | ![Resumen y ticket antes de confirmar](docs/images/screening-checkout.png) |
+| **Ayudar a elegir** | Películas, series, reparto, biografías, géneros, rankings, filtros y trailers enlazados desde TMDB. |
+| **Hacer tangible la experiencia del cine** | Fotografía a pantalla completa, movimiento editorial, formatos de sala, selección de asientos y entrada digital. |
+| **Dar continuidad al descubrimiento** | Favoritos, listas de películas y series por ver, historial y archivo personal de entradas. |
 
-![Compra demo confirmada y entrada digital](docs/images/screening-ticket.png)
+Está pensado para personas que exploran cine y para demostrar un flujo completo de interfaz, datos y reserva. También funciona como proyecto de ingeniería frontend: conecta animación, accesibilidad, APIs, estado y pruebas en una SPA mantenible.
 
-<details>
-<summary>Series y sala móvil</summary>
+**Alcance:** una sede de demostración en Bogotá, tres formatos y precios COP. Las películas tienen funciones; las series y personas forman parte del catálogo editorial. No es un servicio de streaming, no reproduce capítulos completos y no procesa pagos reales.
 
-![Catálogo de series](docs/images/screening-series.png)
+<a id="mapa-mental"></a>
 
-<img src="docs/images/screening-seats-mobile.png" width="320" alt="Sala móvil con resumen debajo del mapa y un solo desplazamiento vertical" />
+## <img src="docs/icons/map.svg" width="26" height="26" alt="" /> Mapa mental del producto
 
-</details>
+![Mapa mental: descubrir, vivir la experiencia, elegir una función, construir el archivo, conectar datos y cuidar la calidad](docs/mindmap.svg)
 
-Las capturas de compra usan una identidad sintética y almacenamiento aislado: no se creó una reserva remota ni se cobró dinero. El [manifiesto de capturas](docs/images/capture-manifest.json) registra fecha, ruta y tamaño. Las imágenes actuales se capturan con movimiento reducido para mantenerlas estables; no representan una medición de FPS. La captura del modal de trailer se conserva de la verificación anterior.
+El centro es la experiencia del visitante. El catálogo, el movimiento y la tecnología están al servicio de ese recorrido, no sustituyen la compra ni esconden sus controles.
 
-## Arquitectura
+<a id="funcionalidades"></a>
 
-![Arquitectura visual de CINE ANIMATIONS](docs/architecture.svg)
+## <img src="docs/icons/ticket.svg" width="26" height="26" alt="" /> Qué puede hacer el usuario
 
-Consulta el [documento técnico](docs/ARCHITECTURE.md) para el mapa de rutas, el esquema entidad-relación, los estados de disponibilidad y los límites entre demo local y backend remoto.
+| Área | Funcionalidades |
+|---|---|
+| **Descubrimiento** | Cartelera, próximos estrenos, rankings, recomendaciones según actividad, búsqueda global de películas, series, personas y géneros. |
+| **Cartelera** | Siete días de programación, formatos, horarios, búsqueda por título/género, año, idioma y orden por popularidad, puntuación o estreno. |
+| **Películas y talento** | Sinopsis, puntuación, duración, reparto, dirección, biografía, filmografía de cine/TV y redes sociales disponibles en TMDB. |
+| **Series** | Tendencias, populares, mejor valoradas, en emisión, temporadas, reparto, recomendaciones y lista de series por ver. |
+| **Colección** | Favoritos, películas por ver, series por ver e historial. Listas anónimas locales y sincronización prevista al iniciar sesión con Supabase. |
+| **Acceso** | Registro, login, confirmación de contraseña, recuperación y retorno al flujo que pidió la sesión. Sin Supabase se indica expresamente el modo demo. |
+| **Sala y compra demo** | Función, mapa interactivo, máximo ocho asientos, retención temporal de diez minutos, resumen, términos y confirmación diferenciada de reserva/compra. |
+| **Entrada digital** | Ticket con película, sede, sala, formato, fecha, asientos, total y referencia; consulta posterior desde la cuenta. |
+
+### Un recorrido, cuatro pasos
 
 ```mermaid
 flowchart LR
-  U[Usuario] --> R[React Router]
-  R --> H[Home y catálogo]
-  R --> D[Película, serie y persona]
-  R --> S[Sala y checkout]
-  R --> A[Cuenta y acceso]
-  H --> C[Catálogo normalizado]
-  D --> C
-  C --> P[Supabase Edge Function\nTMDB Proxy + caché]
-  P --> T[TMDB API]
-  S --> B[Módulo de reservas]
-  A --> B
-  B --> Q[RPC públicas invoker]
-  Q --> X[Funciones private\nsecurity definer]
-  X --> DB[(Postgres + RLS)]
-  DB --> RT[Supabase Realtime]
-  RT --> S
+  A["01 · Función<br/>Película, fecha y formato"] --> B["02 · Asientos<br/>Ubicación y cantidad"]
+  B --> C["03 · Confirmación<br/>Sesión, hold y resumen"]
+  C --> D["04 · Entrada<br/>Reserva o compra demo"]
+  D --> E["Mi cuenta<br/>Historial de entradas"]
 ```
+
+Se puede explorar sin cuenta. La sesión se solicita al crear la retención de asientos; no es necesario iniciar sesión para descubrir el catálogo.
+
+| Classic | Dolby Atmos | IMAX Laser |
+|---|---|---|
+| COP 24.000 | COP 34.000 | COP 42.000 |
+
+Precios de la sede demo; zona horaria `America/Bogota`. [Matriz RF-01 a RF-15 y límites de aceptación](docs/REQUIREMENTS.md).
+
+<a id="galeria"></a>
+
+## <img src="docs/icons/gallery.svg" width="26" height="26" alt="" /> El programa en imágenes
+
+### Portada editorial
+
+![Portada real con fotografía WebP, datos TMDB y acceso a funciones](docs/images/screening-hero.png)
+
+Hasta cinco películas, fondos fotográficos WebP, fundidos y movimiento suave con GSAP cada ocho segundos. La composición conserva pausa y selección manual. **No hay iframes ni trailers descargados como fondo.**
+
+### De la película a la butaca
+
+| Descubrir en profundidad | Elegir asientos |
+|---|---|
+| ![Carrusel 3D de pósteres con navegación lateral](docs/images/screening-spotlight.png) | ![Sala con pantalla curva, escaleras y selección de asientos](docs/images/seat-selection.png) |
+
+El selector de pósteres avanza por clic lateral, botones y teclado; no captura la rueda de la página. La sala conserva un único desplazamiento vertical y el puntero nativo.
+
+| Acceder a tu archivo | Revisar antes de confirmar |
+|---|---|
+| ![Pantalla de acceso de CINE ANIMATIONS](docs/images/screening-login.png) | ![Ticket y resumen de compra demostrativa](docs/images/screening-checkout.png) |
+
+![Entrada digital después de confirmar una compra demo](docs/images/screening-ticket.png)
+
+<details>
+<summary><strong>Ver más: personas, series, géneros y ficha de película</strong></summary>
+
+| Personas | Series |
+|---|---|
+| ![Directorio de personas y talento](docs/images/screening-people.png) | ![Catálogo de series](docs/images/screening-series.png) |
+
+![Explorador de talento y géneros](docs/images/editorial-explorer.png)
+
+![Información ampliada de una película](docs/images/movie-index.png)
+
+</details>
+
+<details>
+<summary><strong>Ver más: trailers y archivo en movimiento</strong></summary>
+
+![Portal animado con enlace externo al trailer](docs/images/screening-trailer.png)
+
+Al pulsar trailer, un abanico GSAP acompaña la consulta a TMDB. Después aparece el enlace de YouTube con alternativa en la misma pestaña, Escape, restauración de foco y reintento. Sin candidato confirmado se ofrece una búsqueda por título identificada como tal, no un trailer de otra película.
+
+![Archivo MovieFrames con carriles que continúan durante hover](docs/images/movie-frames.png)
+
+Los carriles anteriores al footer siguen moviéndose durante el hover. Tienen pausa explícita, suspensión fuera de vista y variante estática con movimiento reducido. Los MP4/GIF de referencia se reinterpretan como componentes; no son grabaciones de otras interfaces reproduciéndose de fondo.
+
+</details>
+
+<details>
+<summary><strong>Ver versión móvil: portada y sala</strong></summary>
+
+<p align="center">
+  <img src="docs/images/screening-mobile.png" width="300" alt="Portada en Pixel 7 con navegación inferior" />
+  &nbsp;
+  <img src="docs/images/screening-seats-mobile.png" width="300" alt="Sala móvil con resumen debajo del mapa" />
+</p>
+
+</details>
+
+Las catorce capturas proceden de la aplicación con catálogo real y movimiento reducido. Las compras usan identidad sintética y almacenamiento aislado: **no crean reservas remotas ni cobran dinero**. [Manifiesto: fechas, rutas y viewports](docs/images/capture-manifest.json).
+
+<a id="arquitectura"></a>
+
+## <img src="docs/icons/map.svg" width="26" height="26" alt="" /> Arquitectura y mapa de navegación
+
+![Arquitectura: descubrimiento, reservas e identidad conectados a sus módulos y datos](docs/architecture.svg)
+
+La aplicación conserva **Vite + React 18 + JavaScript**. El frontend no se ha migrado a Next.js ni a TypeScript; la Edge Function sí contiene código TypeScript.
+
+### Separación de responsabilidades
+
+| Capa | Responsabilidad | Código |
+|---|---|---|
+| Presentación | Páginas, controles, escenas y diseño responsive | [pages](src/pages), [components](src/components), [styles](src/styles) |
+| Navegación | Rutas, carga diferida y transiciones | [App.jsx](src/App.jsx) |
+| Estado | Sesión, colecciones, historial y modal de trailer | [useStore.js](src/store/useStore.js) |
+| Catálogo | Normalización de películas/series/personas y candidatos de trailer | [catalog.js](src/api/catalog.js), [cinema.js](src/api/cinema.js) |
+| Transporte TMDB | Cliente sin token privado; proxy local o remoto | [tmdb.js](src/api/tmdb.js), [vite.config.js](vite.config.js), [Edge Function](supabase/functions/tmdb-proxy/index.ts) |
+| Reservas | Funciones, selección, holds, confirmación y adaptador demo | [booking.js](src/api/booking.js), [cinema.js](src/data/cinema.js) |
+| Persistencia remota | Tablas, restricciones, grants, RLS y RPC | [Migraciones](supabase/migrations) |
+
+```mermaid
+flowchart LR
+  UI["React / navegador"] --> C["Catálogo normalizado"]
+  C --> V["Desarrollo: proxy Vite"]
+  C --> E["Producción: Edge Function"]
+  V --> T["TMDB"]
+  E --> T
+  UI --> S["Zustand / sesión y listas"]
+  UI --> B["Módulo de reservas"]
+  B --> L["Demo local / localStorage"]
+  B --> R["Backend configurado / RPC"]
+  R --> P["Postgres / RLS"]
+  P --> RT["Realtime por función"]
+  RT --> UI
+  S --> A["Supabase Auth y colecciones"]
+```
+
+Las ramas «demo local» y «backend configurado» representan alternativas de ejecución. El token privado TMDB queda en el proxy; las operaciones remotas sobre disponibilidad pasan por RPC. El adaptador local **no garantiza exclusión entre dispositivos**.
+
+### Mapa de rutas
+
+| Descubrir | Elegir y reservar | Tu archivo |
+|---|---|---|
+| `/` — portada | `/cartelera` — fechas, filtros y horarios | `/acceso` — login, registro y recuperación |
+| `/series` → `/serie/:id` | `/pelicula/:id` — ficha y funciones | `/cuenta` — entradas, listas e historial |
+| `/personas` → `/persona/:id` | `/funcion/:id/asientos` — mapa | `/acceso?mode=update` — recuperación |
+| `/experiencias` — formatos | `/checkout/:holdId` — confirmación | Retorno a la función tras iniciar sesión |
+
+«Próximamente» utiliza `/cartelera?tab=proximamente`. La búsqueda y los enlaces de reparto conectan las fichas entre sí.
+
+<details>
+<summary><strong>Ver secuencia de reserva con backend Supabase configurado</strong></summary>
 
 ```mermaid
 sequenceDiagram
@@ -138,94 +216,101 @@ sequenceDiagram
   participant Auth as Supabase Auth
   participant RPC as Booking RPC
   participant DB as Postgres
-  V->>UI: Selecciona función y asientos
-  UI->>Auth: Solicita sesión al crear hold
-  Auth-->>UI: Regresa a la función original
-  UI->>RPC: hold_cinema_seats(showing, seats)
-  RPC->>DB: Bloquea filas y revalida disponibilidad
-  DB-->>RPC: Hold de 10 minutos
+  V->>UI: Elige función y asientos
+  UI->>Auth: Solicita sesión si hace falta
+  Auth-->>UI: Retorno a la función
+  UI->>RPC: Solicita hold de asientos
+  RPC->>DB: Bloquea filas y revalida
+  DB-->>RPC: Hold de diez minutos
   RPC-->>UI: Resumen y expiración
-  UI->>RPC: Confirmar reserva o compra demo
-  RPC->>DB: reserved o sold + entrada
-  DB-->>UI: Actualización Realtime
+  V->>UI: Acepta términos y confirma
+  UI->>RPC: Confirma reserva o compra demo
+  RPC->>DB: Guarda estado y detalle
+  DB-->>UI: Disponibilidad por Realtime
+  UI-->>V: Entrada digital
 ```
 
-## Cobertura de requerimientos funcionales
+Este diagrama describe el contrato implementado; no acredita un despliegue remoto. El [esquema entidad-relación y los estados del asiento](docs/ARCHITECTURE.md) detallan tablas, claves y límites de confianza.
 
-Esta tabla describe la implementación existente, no una certificación del backend remoto. La concurrencia de reservas y las políticas desplegadas requieren verificación sobre una instancia Supabase configurada.
+</details>
 
-| RF | Estado | Implementación |
-|---:|:---:|---|
-| RF-01 | ✅ | Cartelera TMDB/Supabase con fallback local normalizado |
-| RF-02 | ✅ | Búsqueda por título y género; filtros adicionales por año e idioma |
-| RF-03 | ✅ | Ficha con sinopsis, géneros, duración, estreno, dirección, protagonistas, reparto, trailer, puntuación y funciones |
-| RF-04 | ✅ | Fecha, hora, sala, formato, precio COP y disponibilidad exacta |
-| RF-05 | ✅ | Selección de una función identificable y navegable |
-| RF-06 | ✅ | Mapa dinámico con seis estados visuales y semánticos |
-| RF-07 | ✅ | Selección explícita por fila y número |
-| RF-08 | ✅ | Ubicación frontal/media/posterior e izquierda/centro/derecha |
-| RF-09 | ✅ | Selección múltiple y cantidad sincronizada; máximo ocho |
-| RF-10 | ✅ | Nombre, correo, película, función, cantidad, asientos y revalidación |
-| RF-11 | ✅ | Persistencia demo local o transaccional en Supabase |
-| RF-12 | ✅ | Precio unitario, cantidad y total en COP |
-| RF-13 | ✅ | Validaciones de sesión, términos, expiración, cantidad y conflicto |
-| RF-14 | ✅ | Reserva marca `reserved`; compra marca `sold` |
-| RF-15 | ✅ | Bloqueo de filas en RPC: dos usuarios no obtienen el mismo asiento |
+<details>
+<summary><strong>Ver modelo de datos resumido y estructura del repositorio</strong></summary>
 
-## Stack
+```mermaid
+erDiagram
+  PELICULA ||--o{ CINEMA_SHOWINGS : programa
+  CINEMA_ROOMS ||--o{ CINEMA_SHOWINGS : proyecta
+  CINEMA_ROOMS ||--o{ CINEMA_SEATS : contiene
+  CINEMA_SHOWINGS ||--o{ CINEMA_SHOWING_SEATS : disponibilidad
+  CINEMA_SEATS ||--o{ CINEMA_SHOWING_SEATS : localidad
+  AUTH_USERS ||--o{ CINEMA_HOLDS : retiene
+  CINEMA_SHOWINGS ||--o{ CINEMA_HOLDS : funcion
+  CINEMA_HOLDS o|--o| CINEMA_BOOKINGS : confirma
+  CINEMA_BOOKINGS ||--o{ CINEMA_BOOKING_ITEMS : detalle
+  AUTH_USERS ||--o{ USER_FAVORITES : favoritos
+  AUTH_USERS ||--o{ SERIES_WATCHLIST : series_por_ver
+```
 
-Iconos SVG guardados en el repo; no dependen de un CDN para renderizar la documentación:
+Vista resumida de las migraciones, no de una base de producción inspeccionada. El ticket se construye desde la reserva/compra y sus ítems; no se inventa una tabla adicional de entradas.
 
-| Lenguajes | Interfaz | Datos y runtime | Calidad y versiones |
-|---|---|---|---|
-| <img src="docs/icons/javascript.svg" width="28" alt="JavaScript" /> JavaScript | <img src="docs/icons/react.svg" width="28" alt="React" /> React 18 | <img src="docs/icons/supabase.svg" width="28" alt="Supabase" /> Supabase | <img src="docs/icons/vitest.svg" width="28" alt="Vitest" /> Vitest |
-| <img src="docs/icons/html5.svg" width="28" alt="HTML5" /> HTML5 / JSX | <img src="docs/icons/vitejs.svg" width="28" alt="Vite" /> Vite 6 | <img src="docs/icons/postgresql.svg" width="28" alt="PostgreSQL" /> PostgreSQL / SQL | <img src="docs/icons/playwright.svg" width="28" alt="Playwright" /> Playwright |
-| <img src="docs/icons/css3.svg" width="28" alt="CSS3" /> CSS3 | <img src="docs/icons/tailwindcss.svg" width="28" alt="Tailwind CSS" /> Tailwind CSS | <img src="docs/icons/nodejs.svg" width="28" alt="Node.js" /> Node.js | <img src="docs/icons/eslint.svg" width="28" alt="ESLint" /> ESLint |
-| JavaScript ESM | <img src="docs/icons/threejs.svg" width="28" alt="Three.js" /> Three.js / R3F / Drei | TMDB + YouTube APIs | <img src="docs/icons/git.svg" width="28" alt="Git" /> Git · <img src="docs/icons/github.svg" width="28" alt="GitHub" /> GitHub |
+```text
+cine-animations/
+├── src/
+│   ├── pages/          # Rutas y pantallas
+│   ├── components/     # Interfaz y escenas animadas
+│   ├── api/            # Catálogo, proxy y reservas
+│   ├── store/          # Estado compartido
+│   ├── data/           # Formatos y datos demo
+│   └── styles/         # Diseño y variantes responsive
+├── supabase/
+│   ├── functions/      # Proxy remoto TMDB
+│   └── migrations/     # Tablas, políticas y RPC
+├── public/media/       # Imágenes y recursos locales
+├── tests/              # Unitarias, fixtures y E2E
+├── scripts/            # Capturas, WebP y documentación
+└── docs/               # Arquitectura, SVG, imágenes y pruebas
+```
 
-[![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-88CE02?logo=gsap&logoColor=111)](https://gsap.com/)
-[![Motion](https://img.shields.io/badge/Motion-Framer_Motion-FFF312?logo=framer&logoColor=111)](https://motion.dev/)
-[![Router](https://img.shields.io/badge/React_Router-Rutas-CA4245?logo=reactrouter&logoColor=fff)](https://reactrouter.com/)
+</details>
 
-Los iconos proceden de [Devicon v2.17.0](https://github.com/devicons/devicon/tree/v2.17.0), con [licencia incluida](docs/icons/LICENSE). Las marcas identifican tecnologías, no patrocinadores. `node scripts/sync-doc-icons.mjs` actualiza únicamente estos recursos documentales desde esa versión fijada.
+<a id="stack"></a>
 
-| Capa | Herramientas |
-|---|---|
-| UI | React 18, Vite 6, React Router, Tailwind CSS |
-| Motion | GSAP, ScrollTrigger, Lenis, Framer Motion |
-| 3D | Three.js, React Three Fiber, Drei |
-| Datos | TMDB API, Supabase Postgres, Edge Functions |
-| Identidad | Supabase Auth con fallback demo local |
-| Seguridad | RLS, grants explícitos y RPC transaccionales |
-| Calidad | Vitest, Playwright, ESLint |
-| Media | YouTube IFrame API, imágenes TMDB; medios locales previos fuera del hero |
+## <img src="docs/icons/react.svg" width="26" height="26" alt="" /> Stack tecnológico
 
-## Rutas
+Tecnologías declaradas en [package.json](package.json); [package-lock.json](package-lock.json) fija las versiones instaladas. Los iconos se guardan en el repositorio y no necesitan un CDN para mostrarse.
 
-| Ruta | Propósito |
-|---|---|
-| `/` | Apertura, cartelera, formatos, archivo GSAP y cierre |
-| `/cartelera` | Fechas, búsqueda, filtros, orden y horarios |
-| `/pelicula/:id` | Detalle, trailer, reparto, funciones y reseña |
-| `/persona/:id` | Biografía, filmografía y redes sociales |
-| `/personas` | Muro 3D, tendencias y directorio de talento |
-| `/series` | Tendencias, populares, mejor valoradas y en emisión |
-| `/serie/:id` | Temporadas, reparto, trailer, similares y Mi lista |
-| `/funcion/:id/asientos` | Selección y hold de asientos |
-| `/checkout/:holdId` | Reserva o compra demostrativa |
-| `/cuenta` | Entradas, favoritos, watchlist e historial |
-| `/acceso` | Login, registro y recuperación |
-| `/experiencias` | Classic, Dolby Atmos e IMAX Laser |
+| Capa | Tecnologías | Uso |
+|---|---|---|
+| Lenguajes | <img src="docs/icons/javascript.svg" width="24" alt="JavaScript" /> JavaScript · <img src="docs/icons/html5.svg" width="24" alt="HTML5" /> HTML/JSX · <img src="docs/icons/css3.svg" width="24" alt="CSS3" /> CSS | Frontend SPA y componentes |
+| Interfaz | <img src="docs/icons/react.svg" width="24" alt="React" /> React 18 · <img src="docs/icons/vitejs.svg" width="24" alt="Vite" /> Vite 6 · <img src="docs/icons/tailwindcss.svg" width="24" alt="Tailwind CSS" /> Tailwind CSS 3 | Renderizado, desarrollo y diseño |
+| Navegación y estado | <img src="docs/icons/router.svg" width="24" alt="React Router" /> React Router · <img src="docs/icons/zustand.svg" width="24" alt="Zustand" /> Zustand | Rutas, sesión y colecciones |
+| Animación | <img src="docs/icons/gsap.svg" width="24" alt="GSAP" /> GSAP / ScrollTrigger · <img src="docs/icons/motion.svg" width="24" alt="Framer Motion" /> Framer Motion · <img src="docs/icons/lenis.svg" width="24" alt="Lenis" /> Lenis | Timelines, transiciones y scroll narrativo |
+| Escenas 3D | <img src="docs/icons/threejs.svg" width="24" alt="Three.js" /> Three.js · <img src="docs/icons/fiber.svg" width="24" alt="React Three Fiber" /> R3F · <img src="docs/icons/drei.svg" width="24" alt="Drei" /> Drei | Escenas y presentación de formatos |
+| Catálogo | <img src="docs/icons/tmdb.svg" width="24" alt="TMDB" /> TMDB | Películas, series, personas, imágenes y metadatos de trailers |
+| Backend | <img src="docs/icons/supabase.svg" width="24" alt="Supabase" /> Supabase · <img src="docs/icons/postgresql.svg" width="24" alt="PostgreSQL" /> PostgreSQL / SQL | Auth, Edge Functions, RLS, RPC y Realtime |
+| Recursos visuales | <img src="docs/icons/lucide.svg" width="24" alt="Lucide" /> Lucide · <img src="docs/icons/ffmpeg.svg" width="24" alt="FFmpeg" /> FFmpeg / WebP | Iconos SVG y optimización de imágenes |
+| Runtime | <img src="docs/icons/nodejs.svg" width="24" alt="Node.js" /> Node.js | Herramientas de desarrollo y scripts |
+| Calidad | <img src="docs/icons/vitest.svg" width="24" alt="Vitest" /> Vitest · <img src="docs/icons/playwright.svg" width="24" alt="Playwright" /> Playwright · <img src="docs/icons/eslint.svg" width="24" alt="ESLint" /> ESLint | Unitarias, E2E y análisis estático |
+| Versiones | <img src="docs/icons/git.svg" width="24" alt="Git" /> Git · <img src="docs/icons/github.svg" width="24" alt="GitHub" /> GitHub | Features y revisión hacia `develop` |
 
-## Configuración local
+`json-server` permanece como herramienta heredada en los scripts; **no es necesario levantar el puerto 3001 para el flujo actual**. Los detalles de procedencia y licencia de los logotipos/pictogramas están en [docs/icons/README.md](docs/icons/README.md).
 
-Requisitos para el conjunto completo de herramientas: Node.js **24.15+ dentro de la rama 24** (verificado con 24.18) o 22.22.2+ dentro de la rama 22, y un TMDB Read Access Token. El mínimo incluye Vitest/jsdom y React Router, no solo Vite.
+<a id="instalacion"></a>
+
+## <img src="docs/icons/nodejs.svg" width="26" height="26" alt="" /> Ejecutar el proyecto
+
+### 1. Preparar el entorno
+
+Versión utilizada en la última validación: **Node.js 24.18**. Instala las dependencias desde la carpeta del repositorio:
 
 ```bash
-npm install
+npm ci
 ```
 
-Crea `.env.local`:
+### 2. Configurar el catálogo
+
+Crea `.env.local` con tus propios valores:
 
 ```dotenv
 TMDB_TOKEN=tu_read_access_token_de_tmdb
@@ -234,69 +319,115 @@ VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-`TMDB_TOKEN` no se compila en el cliente. Durante desarrollo lo lee exclusivamente el middleware de Vite; en producción debe configurarse como secreto de la Edge Function:
+- `TMDB_TOKEN` es privado y solo lo lee el proxy del servidor.
+- Las variables `VITE_*` son públicas: no colocar ahí el token TMDB ni una clave `service_role`.
+- Sin Supabase se activa la demo local. No envía correos ni autentica identidades reales.
+- Nunca subir `.env.local`, credenciales o datos personales al repositorio.
 
-```bash
-supabase secrets set TMDB_TOKEN=tu_read_access_token_de_tmdb
-supabase functions deploy tmdb-proxy
-```
-
-Ejecuta la aplicación:
+### 3. Abrir la aplicación
 
 ```bash
 npm run dev:vite
 ```
 
-Sin credenciales Supabase, la aplicación conserva un modo demo funcional con autenticación, holds, reservas, compras, favoritos, reseñas e historial locales.
+Visita [localhost:5173](http://localhost:5173/). Si otro proyecto ocupa ese puerto, revisa la URL que imprime Vite antes de abrirla.
 
-## Base de datos y seguridad
+### Desarrollo local y producción no son lo mismo
 
-Aplica las migraciones de `supabase/migrations` en orden. Las tablas públicas de cartelera tienen lectura controlada; holds, reservas, entradas, valoraciones y la watchlist de series están aislados por usuario. `series_watchlist` declara grants explícitos y políticas RLS independientes para lectura, inserción, actualización y eliminación. Las mutaciones de disponibilidad solo ocurren mediante wrappers RPC públicos que delegan en funciones del esquema `private`.
+| Entorno | Catálogo | Cuenta y reservas |
+|---|---|---|
+| Desarrollo sin Supabase | Proxy Vite → TMDB; fallback demo si falla el catálogo | Simulación en el dispositivo |
+| Backend configurado | Catálogo publicado y consultas TMDB normalizadas | Supabase Auth, colecciones y RPC |
+| Build de producción | Requiere Edge Function o infraestructura de proxy configurada | Requiere migraciones, permisos y servicios validados |
 
-```bash
-supabase db push
-```
+`npm run preview` sirve el build; **no sustituye al middleware de desarrollo ni despliega una API**. Antes de publicar se deben configurar el secreto TMDB del proxy remoto, las migraciones, las URLs de Auth y el retorno de rutas SPA. [Arquitectura e infraestructura pendiente](docs/ARCHITECTURE.md).
 
-## Calidad
+La exposición de tablas requiere revisar tanto grants como RLS; no se debe confundir acceso al Data API con autorización sobre filas. [Guía oficial de Supabase](https://supabase.com/docs/guides/api/securing-your-api).
 
-Los resultados y límites de verificación se registran en [TESTING.md](docs/TESTING.md). La regresión incluye cursor nativo, scroll único, teclado, viewport corto, navegación, trailers, asientos y tickets en escritorio, tablet y Pixel 7. Las pruebas E2E controlan los servicios externos; no certifican el backend Supabase remoto ni disponibilidad permanente de YouTube.
+<a id="calidad"></a>
 
-Resultado local: **14 unitarias + 63 E2E correctas**, lint sin advertencias y build de producción correcto. Se incluyen nueve verificaciones nuevas de scroll/cursor.
+## <img src="docs/icons/playwright.svg" width="26" height="26" alt="" /> Calidad, accesibilidad y mantenimiento
+
+**Última ejecución de la aplicación, 31 de agosto de 2026:** 15 unitarias y 78 pruebas de navegador correctas; lint y build correctos. Esta cifra pertenece a esa ejecución, no a un indicador de CI en tiempo real. [Matriz de pruebas y limitaciones](docs/TESTING.md).
 
 ```bash
 npm run lint
 npm test
 npm run build
-npm run test:e2e -- --project=chromium --project=tablet --project=mobile-chrome --workers=1
+npm run pw:install -- chromium
+npm run test:e2e -- --project=chromium --project=tablet --project=mobile-chrome --workers=2
 ```
 
-La suite incluye precio total, temporizador, límite de selección, normalización, imágenes únicas, prioridad de trailers, tiempo efectivo de reproducción y aislamiento de errores de colecciones. Playwright usa catálogo controlado y un adaptador de YouTube simulado para probar errores, autoplay bloqueado, portal, foco, pausa y navegación en escritorio, tablet y Pixel 7. La reproducción real se comprueba por separado en navegador; no se confunde el mock con una prueba de disponibilidad de YouTube. Para regenerar las capturas con catálogo real y el servidor activo:
+La cobertura incluye navegación, filtros, favoritos, listas, registro/login demo, retorno, trailers externos, rotación, titulares completos, scroll, asientos y tickets. Firefox/WebKit, correo real y concurrencia remota no están certificados por esos resultados.
+
+### Movimiento que se puede controlar
+
+- Fondos con pausa, flechas y suspensión al ocultar la pestaña o abrir el trailer.
+- `prefers-reduced-motion` y ahorro de datos desactivan la rotación automática del hero.
+- Lenis se limita a rutas narrativas; asientos y checkout mantienen scroll normal.
+- El mapa indica estados y ubicación sin depender solo del color.
+- Loaders sin porcentajes inventados ni esperas obligatorias.
+- Contextos GSAP y temporizadores se limpian al desmontar las escenas.
+
+### Recursos y documentación reproducibles
 
 ```bash
+# Con Vite activo: cinco fondos TMDB en WebP 960/1600
+node scripts/build-editorial-webp.mjs
+
+# Capturas reales; compras aisladas en modo demo
 node scripts/capture-readme.mjs
+
+# Validación de enlaces y recursos locales de la documentación
+node scripts/check-docs.mjs
 ```
 
-## Flujo de ramas
+Los fondos locales se usan únicamente cuando coinciden ID y backdrop con el manifiesto; títulos nuevos usan imágenes de TMDB. No se descargan vídeos de YouTube ni se consumen créditos de generación para este pipeline.
 
-Base predeterminada: **`develop`**. Las features se publican como `codex/feature/...` y abren PR hacia `develop`, nunca hacia otra feature por accidente. La rama de catálogo conserva esta iteración hasta su revisión e integración: cambiar la rama por defecto no fusiona sus commits. Consulta [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+<a id="contribuir"></a>
 
-## Rendimiento y accesibilidad
+## <img src="docs/icons/git.svg" width="26" height="26" alt="" /> Desarrollo por features
 
-- Lenis solo se activa en rutas narrativas y se omite en asientos, checkout y acceso.
-- ScrollTriggers y timelines se revierten al desmontar cada ruta.
-- Los trailers del hero hacen autoplay silencioso solo en escritorio y cuando son visibles; el trailer completo se carga tras la interacción.
-- En móvil y movimiento reducido se muestra la imagen TMDB hasta solicitar reproducción.
-- Los loaders usan seis pósteres o siluetas, sin esperas obligatorias ni porcentajes ficticios.
-- Los carruseles ofrecen pausa, foco de teclado y una variante sin movimiento.
-- Todos los flujos críticos mantienen texto, labels y estados accesibles sin depender solo del color.
+La base de integración es **`develop`**. Cada feature parte de ella y se propone mediante un PR con destino a `develop`.
 
-### Estado de infraestructura
+```mermaid
+flowchart LR
+  D["develop"] --> F["codex/feature/nombre"]
+  F --> Q["Pruebas, lint y build"]
+  Q --> PR["PR con base develop"]
+  PR --> R["Revisión"]
+  R --> D
+```
 
-La migración `add_series_watchlist` y los endpoints nuevos del proxy deben desplegarse en la instancia de producción. Esta iteración no modifica las RPC de asientos ni realiza migraciones remotas. Si falla la tabla de series, se conserva la colección local y se informa en cuenta sin impedir cargar favoritos y películas por ver. No se han consumido créditos de generación de vídeo.
+No se fusionan ramas automáticamente ni se reescribe su historial como parte de la documentación. [Guía de contribución y checklist](docs/CONTRIBUTING.md).
+
+### Biblioteca de documentación
+
+| Documento | Contenido |
+|---|---|
+| [Arquitectura](docs/ARCHITECTURE.md) | Mapa completo de rutas, módulos, esquema entidad-relación, estados y seguridad |
+| [Mapa mental SVG](docs/mindmap.svg) | Objetivos del producto y sus conexiones |
+| [Requerimientos](docs/REQUIREMENTS.md) | Matriz RF-01 a RF-15 y límites de aceptación |
+| [Pruebas](docs/TESTING.md) | Resultados, comandos, entornos y verificaciones pendientes |
+| [Contribución](docs/CONTRIBUTING.md) | Flujo de features y revisión |
+| [Capturas](docs/images/capture-manifest.json) | Fecha, ruta y viewport de cada imagen |
+| [Iconos](docs/icons/README.md) | Procedencia y licencias de recursos SVG |
+
+### Antes de pasar a producción
+
+- Desplegar y comprobar el proxy TMDB y las migraciones.
+- Validar Auth, recuperación de correo, RLS y aislamiento entre cuentas.
+- Probar reservas concurrentes y expiración de holds contra Postgres.
+- Revisar accesibilidad, rendimiento y navegadores objetivo.
+- Mantener claramente identificado el checkout demostrativo; no añadir cobros implícitos.
 
 ---
 
 <div align="center">
-  <strong>CINE ANIMATIONS · Bogotá, Colombia</strong><br/>
-  <sub>Checkout demostrativo. No procesa pagos reales.</sub>
+
+**CINE ANIMATIONS · Bogotá**
+
+Una forma de descubrir historias y explorar la experiencia del cine.<br/>
+**Demo de reservas. Sin pagos reales. Sin reproducción de películas completas.**
+
 </div>

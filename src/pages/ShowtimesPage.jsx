@@ -17,14 +17,16 @@ export default function ShowtimesPage() {
   const [year, setYear] = useState('ALL'); const [language, setLanguage] = useState('ALL'); const [sort, setSort] = useState('POPULARITY');
   useEffect(() => { let active = true; getCinemaMovies(tab === 'proximamente' ? 'upcoming' : 'nowPlaying', 18).then((items) => { if (!active) return []; setMovies(items); return listShowings({ movies: items }); }).then((items) => { if (active) setShowings(items); }); return () => { active = false; }; }, [tab]);
   useEffect(() => { setQuery(urlQuery); }, [urlQuery]);
-  useEffect(() => { if (params.get('focus') === 'search') setTimeout(() => searchRef.current?.focus(), 300); }, [params]);
+  useEffect(() => { setFormat(params.get('format') || 'ALL'); }, [params]);
+  useEffect(() => { if (params.get('focus') !== 'search') return undefined; const timer = setTimeout(() => searchRef.current?.focus(), 300); return () => clearTimeout(timer); }, [params]);
   const dates = useMemo(() => Array.from({ length: 7 }, (_, index) => { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() + index); return date; }), []);
   const years = [...new Set(movies.map((movie) => movie.release_date?.slice(0, 4)).filter(Boolean))].sort().reverse();
   const languages = [...new Set(movies.map((movie) => movie.original_language).filter(Boolean))].sort();
   const dateKey = (value) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
   const visibleMovies = movies.filter((movie) => {
-    const searchable = `${movie.title} ${(movie.genres || []).map((genre) => genre.name).join(' ')}`.toLowerCase();
-    return searchable.includes(query.trim().toLowerCase()) && (year === 'ALL' || movie.release_date?.startsWith(year)) && (language === 'ALL' || movie.original_language === language);
+    const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const searchable = normalize(`${movie.title} ${(movie.genres || []).map((genre) => genre.name).join(' ')}`);
+    return searchable.includes(normalize(query.trim())) && (year === 'ALL' || movie.release_date?.startsWith(year)) && (language === 'ALL' || movie.original_language === language);
   }).sort((a, b) => sort === 'RATING' ? Number(b.vote_average || 0) - Number(a.vote_average || 0) : sort === 'RELEASE' ? String(b.release_date || '').localeCompare(String(a.release_date || '')) : Number(b.popularity || 0) - Number(a.popularity || 0));
   return <div className="showtimes-page">
     <header className="page-hero"><p>CINE ANIMATIONS · BOGOTÁ</p><h1>{tab === 'proximamente' ? <>PRÓXIMOS<br /><span>ESTRENOS</span></> : <>LA<br /><span>CARTELERA</span></>}</h1><div className="page-hero__aside"><CalendarDays size={18} /><p>Películas seleccionadas para verse grandes. Funciones todos los días en Classic, Dolby Atmos e IMAX Laser.</p></div></header>

@@ -4,7 +4,6 @@ import { ExternalLink, Film, RotateCcw, X } from 'lucide-react';
 import { Catalog } from '../api/catalog';
 import { TMDB } from '../api/tmdb';
 import ProjectionLoader from './ProjectionLoader';
-import YouTubePlayer from './YouTubePlayer';
 
 export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, movieBackdropPath, originRect, mediaType = 'movie', isDemo = false }) {
   const dialogRef = useRef(null);
@@ -18,7 +17,6 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
   const [selected, setSelected] = useState(0);
   const [attempt, setAttempt] = useState(0);
   const [error, setError] = useState('');
-  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -38,7 +36,7 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
 
   useEffect(() => {
     let active = true;
-    setLoading(true); setError(''); setBlocked(false); setSelected(0);
+    setLoading(true); setError(''); setSelected(0);
     (isDemo ? Promise.resolve([]) : Catalog.getTrailerCandidates(mediaType, movieId)).then((rows) => { if (active) setVideos(rows); })
       .catch(() => { if (active) setError('No pudimos consultar los trailers.'); })
       .finally(() => { if (active) setLoading(false); });
@@ -54,22 +52,25 @@ export default function TrailerModal({ isOpen, onClose, movieId, movieTitle, mov
   const video = videos[selected];
   const ready = entered && !loading;
   const image = TMDB.backdrop(movieBackdropPath, 'w780');
-  const fail = () => {
-    if (selected + 1 < videos.length) setSelected((value) => value + 1);
-    else setError('YouTube no permite reproducir este trailer aquí o la conexión está bloqueada.');
-  };
+  const externalURL = video ? `https://www.youtube.com/watch?v=${video.key}` : `https://www.youtube.com/results?search_query=${encodeURIComponent(`${movieTitle} trailer oficial`)}`;
   if (!isOpen) return null;
   return <dialog ref={dialogRef} className="trailer-dialog" aria-labelledby="trailer-heading" onCancel={(event) => { event.preventDefault(); setClosing(true); }} onClick={(event) => { if (event.target === event.currentTarget) setClosing(true); }}>
     <div className="trailer-portal" ref={portalRef}>
       <header className="trailer-toolbar"><span>PROYECCIÓN / {mediaType === 'tv' ? 'SERIE' : 'PELÍCULA'}</span><button onClick={() => setClosing(true)} aria-label="Cerrar trailer"><X size={21} /></button></header>
       <div className="trailer-portal__screen">
         {!ready && <div className="trailer-intro" data-testid="trailer-intro">{!entered && image ? <div className="trailer-fan" aria-hidden="true">{Array.from({ length: 5 }, (_, index) => <img key={index} src={image} alt="" />)}</div> : <ProjectionLoader label={`Preparando ${movieTitle}`} />}</div>}
-        {ready && (error || !video) && <div className="trailer-message"><Film size={32} /><strong>{error ? 'PROYECCIÓN INTERRUMPIDA' : 'TRAILER NO DISPONIBLE'}</strong><span>{error || 'Todavía no hay un trailer publicado para este título.'}</span><button onClick={() => setAttempt((value) => value + 1)}><RotateCcw size={16} />REINTENTAR</button>{video && <a href={`https://www.youtube.com/watch?v=${video.key}`} target="_blank" rel="noreferrer">VER EN YOUTUBE <ExternalLink size={14} /></a>}</div>}
-        {ready && video && !error && !closing && <YouTubePlayer key={`${video.key}-${attempt}`} videoId={video.key} title={video.name || movieTitle} onError={fail} onBlocked={() => setBlocked(true)} />}
+        {ready && <div className="trailer-handoff">
+          {image && <img src={image} alt={`Escena de ${movieTitle}`} />}
+          <div><Film size={28} /><strong>{video ? 'EL TRAILER, EN SU PANTALLA ORIGINAL.' : 'TRAILER NO DISPONIBLE'}</strong>
+            <p>{error || (video ? 'Abre YouTube para reproducirlo sin las restricciones del reproductor insertado.' : 'No hay un enlace confirmado en TMDB. Puedes buscarlo por título, sin confundirlo con otra película.')}</p>
+            <a className="button-primary" href={externalURL} target="_blank" rel="noopener noreferrer">{video ? 'VER EN YOUTUBE' : 'BUSCAR TRAILER EN YOUTUBE'} <ExternalLink size={16} /></a>
+            <a className="trailer-same-tab" href={externalURL}>Si no se abre, continuar en esta pestaña →</a>
+            {!video && <button onClick={() => setAttempt((value) => value + 1)}><RotateCcw size={16} />REINTENTAR CONSULTA</button>}
+          </div>
+        </div>}
       </div>
-      {blocked && <p className="trailer-hint" role="status">Pulsa reproducir en el reproductor para iniciar el trailer.</p>}
       <header><p>TRAILER COMPLETO</p><h2 id="trailer-heading">{movieTitle}</h2></header>
-      {ready && videos.length > 1 && <div className="trailer-related"><span>OTROS TRAILERS DE ESTE TÍTULO</span><div>{videos.map((item, index) => <button key={item.key} onClick={() => { setSelected(index); setError(''); setBlocked(false); }} className={index === selected ? 'is-active' : ''}><img src={`https://img.youtube.com/vi/${item.key}/mqdefault.jpg`} alt="" loading="lazy" /><strong>{item.name}</strong></button>)}</div></div>}
+      {ready && videos.length > 1 && <div className="trailer-related"><span>OTROS TRAILERS DE ESTE TÍTULO</span><div>{videos.map((item, index) => <button key={item.key} onClick={() => { setSelected(index); setError(''); }} className={index === selected ? 'is-active' : ''}><strong>{item.name}</strong></button>)}</div></div>}
     </div>
   </dialog>;
 }

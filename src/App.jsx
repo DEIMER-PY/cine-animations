@@ -34,6 +34,7 @@ export default function App() {
   const trailerMovie = useStore((state) => state.trailerMovie);
   const trailerOrigin = useStore((state) => state.trailerOrigin);
   const trailerMediaType = useStore((state) => state.trailerMediaType);
+  const collectionError = useStore((state) => state.collectionError);
 
   useEffect(() => { initializeApp(); }, [initializeApp]);
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
@@ -44,6 +45,7 @@ export default function App() {
     <div className="min-h-screen bg-cinema-black text-white">
       {!focusedFlow && <ScrollProgress />}<SmoothScroll enabled={immersive} />{!focusedFlow && <Navigation />}
       <MotionDirector />
+      {collectionError && <div className="collection-toast" role="status">{collectionError}<button onClick={() => useStore.setState({ collectionError: '' })} aria-label="Cerrar aviso">×</button></div>}
       <main>
         <AnimatePresence mode="wait" initial={false}>
           <RouteStage key={location.pathname}>

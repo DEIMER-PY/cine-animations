@@ -1,52 +1,9 @@
-<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="45%" r="75%">
-      <stop offset="0%" stop-color="#1a1a1a"/>
-      <stop offset="55%" stop-color="#111111"/>
-      <stop offset="100%" stop-color="#0a0a0a"/>
-    </radialGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#c41230"/>
-      <stop offset="100%" stop-color="#c9a84c"/>
-    </linearGradient>
-    <linearGradient id="line" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="transparent"/>
-      <stop offset="50%" stop-color="#c41230"/>
-      <stop offset="100%" stop-color="transparent"/>
-    </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="12" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <rect width="1600" height="900" fill="url(#bg)"/>
-
-  <!-- film strip frames -->
-  <g opacity="0.15">
-    <rect x="0" y="30" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="140" y="30" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="280" y="30" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="420" y="30" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="0" y="800" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="140" y="800" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="280" y="800" width="120" height="70" rx="6" fill="#222"/>
-    <rect x="420" y="800" width="120" height="70" rx="6" fill="#222"/>
-  </g>
-
-  <!-- center badge -->
-  <circle cx="800" cy="360" r="90" fill="none" stroke="#c41230" stroke-width="2" opacity="0.4" filter="url(#glow)"/>
-  <text x="800" y="390" text-anchor="middle" font-family="Impact, sans-serif" font-size="120" fill="url(#accent)" filter="url(#glow)">CINE</text>
-
-  <!-- subtitle -->
-  <text x="800" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" letter-spacing="18" fill="#8b9bb4" opacity="0.75">INTERACTIVE ANIMATIONS</text>
-
-  <!-- accent line -->
-  <line x1="620" y1="600" x2="980" y2="600" stroke="url(#line)" stroke-width="3"/>
-
-  <!-- tech tags -->
-  <g font-family="Consolas, monospace" font-size="22" fill="#c9a84c" opacity="0.7">
-    <text x="800" y="660" text-anchor="middle">REACT + VITE</text>
-    <text x="800" y="700" text-anchor="middle">THREE.JS + R3F + GSAP</text>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="300" viewBox="0 0 1400 300" role="img" aria-labelledby="title desc">
+<title id="title">CINE ANIMATIONS · descubre tu próxima historia</title><desc id="desc">Catálogo cinematográfico, experiencia interactiva y reserva demostrativa para Bogotá.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#211923"/><stop offset="1" stop-color="#0c1118"/></linearGradient></defs>
+<rect width="1400" height="300" rx="20" fill="url(#bg)"/><path d="M54 40v220" stroke="#c41230" stroke-width="5"/>
+<g font-family="Arial, sans-serif"><text x="85" y="65" fill="#d6b975" font-size="12" letter-spacing="5">BOGOTÁ / DIGITAL CINEMA EXPERIENCE</text>
+<text x="80" y="143" fill="#f6f1eb" font-size="64" font-weight="800" letter-spacing="-2">CINE ANIMATIONS</text>
+<text x="85" y="188" fill="#d0c8ce" font-size="23">Descubre tu próxima historia. Elige cómo vivirla.</text>
+<text x="85" y="251" fill="#a7a4af" font-size="13" letter-spacing="2">CATÁLOGO TMDB · MOTION GSAP · RESERVAS DEMO</text>
+<g transform="translate(1050 58) rotate(8 140 90)" fill="none" stroke="#c8a46b" stroke-width="2"><path d="M0 0h265v61a29 29 0 0 0 0 58v61H0v-61a29 29 0 0 0 0-58z"/><path d="M193 14v152" stroke-dasharray="5 7"/><text x="25" y="52" font-size="12" fill="#c8a46b" stroke="none">PRÓXIMA FUNCIÓN</text><text x="24" y="111" font-size="45" fill="#f6f1eb" stroke="none" font-weight="700">01 /</text><text x="25" y="151" font-size="12" fill="#c8a46b" stroke="none">TU ENTRADA AL CINE</text></g></g></svg>

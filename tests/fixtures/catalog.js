@@ -3,7 +3,7 @@ export const movies = Array.from({ length: 24 }, (_, index) => ({
   id: 1000 + index, title: `Película ${index + 1}`, name: `Serie ${index + 1}`,
   overview: 'Una historia de cine para comprobar navegación, cartelera y entradas.',
   poster_path: `/poster-${index}.jpg`, backdrop_path: `/scene-${index}.jpg`,
-  vote_average: 8, vote_count: 100, popularity: 30, release_date: '2026-08-20',
+  vote_average: 6 + index / 10, vote_count: 100, popularity: 30 - index, release_date: `${index % 2 ? '2025' : '2026'}-08-20`, original_language: index % 2 ? 'es' : 'en',
   first_air_date: '2026-08-20', runtime: 120,
   genres: [{ id: index % 6 + 1, name: ['Acción', 'Drama', 'Animación', 'Comedia', 'Suspenso', 'Fantasía'][index % 6] }],
 }));

@@ -26,14 +26,19 @@ export default function Navigation() {
   const collectionCount = favorites.length + watchlist.length + seriesWatchlist.length;
 
   useEffect(() => { const update = () => setScrolled(window.scrollY > 28); update(); window.addEventListener('scroll', update, { passive: true }); return () => window.removeEventListener('scroll', update); }, []);
-  useEffect(() => { setOpen(false); setSearchOpen(false); }, [location.pathname, location.search]);
+  useEffect(() => { setOpen(false); setSearchOpen(false); setHovered(null); }, [location.pathname, location.search]);
+  useEffect(() => {
+    const escape = (event) => { if (event.key === 'Escape') { setOpen(false); setHovered(null); } };
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, []);
   useEffect(() => { document.body.style.overflow = open ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [open]);
   useEffect(() => { const shortcut = (event) => { const isTyping = /input|textarea|select/i.test(event.target.tagName); const opensSlash = event.key === '/' && !isTyping && !event.ctrlKey && !event.metaKey; const opensCommand = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'; if (opensSlash || opensCommand) { event.preventDefault(); setSearchOpen(true); } }; window.addEventListener('keydown', shortcut); return () => window.removeEventListener('keydown', shortcut); }, []);
 
   return <>
     <motion.header initial={{ y: -90 }} animate={{ y: 0 }} className={`cinema-nav ${scrolled ? 'cinema-nav--solid' : ''}`} onMouseLeave={() => setHovered(null)}>
       <button className="cinema-nav__menu" onClick={() => setOpen(true)} aria-label="Abrir menú"><Menu size={19} /><span>MENÚ</span></button>
-      <nav className="cinema-nav__links" aria-label="Navegación principal">{links.map((item) => <NavLink key={item.to} to={item.to} onMouseEnter={() => setHovered(item)} onFocus={() => setHovered(item)} className={({ isActive }) => isActive ? 'is-active' : ''}>{item.label}</NavLink>)}</nav>
+      <nav className="cinema-nav__links" aria-label="Navegación principal">{links.map((item) => { const active = location.pathname === item.to.split('?')[0] && (item.label === 'Próximamente' ? location.search.includes('tab=proximamente') : item.label === 'Cartelera' ? !location.search.includes('tab=proximamente') : true); return <Link key={item.to} to={item.to} onMouseEnter={() => setHovered(item)} onFocus={() => setHovered(item)} aria-current={active ? 'page' : undefined} className={active ? 'is-active' : ''}>{item.label}</Link>; })}</nav>
       <Link to="/" className="cinema-wordmark" aria-label="CINE ANIMATIONS inicio"><strong>CINE</strong><small>ANIMATIONS</small></Link>
       <div className="cinema-nav__actions">
         <button onClick={() => setSearchOpen(true)} aria-label="Buscar películas, series, personas o géneros"><Search size={18} /></button>

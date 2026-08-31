@@ -31,12 +31,12 @@ export default function SearchPalette({ open, onClose }) {
   }, [open, onClose]);
 
   useEffect(() => {
+    const request = ++requestRef.current;
     if (query.trim().length < 2) {
       setResults({ movies: [], series: [], people: [], genres: [] });
       setLoading(false);
       return undefined;
     }
-    const request = ++requestRef.current;
     setLoading(true);
     setError('');
     const timer = window.setTimeout(async () => {
@@ -49,7 +49,7 @@ export default function SearchPalette({ open, onClose }) {
         if (request === requestRef.current) setLoading(false);
       }
     }, 240);
-    return () => window.clearTimeout(timer);
+    return () => { window.clearTimeout(timer); if (requestRef.current === request) requestRef.current += 1; };
   }, [query]);
 
   const count = useMemo(() => results.movies.length + results.series.length + results.people.length + results.genres.length, [results]);

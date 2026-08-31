@@ -199,19 +199,19 @@ export const useStore = create((set, get) => ({
   },
 
   requestPasswordReset: async (email) => {
-    if (!isSupabaseConfigured) return { email, demo: true };
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    if (!isSupabaseConfigured) throw new Error('Modo demostración: no se envían correos. Configura Supabase para recuperar una cuenta real.');
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/acceso?mode=update` });
     if (error) throw error;
   },
 
   updatePassword: async (password) => {
-    if (!isSupabaseConfigured) return { passwordUpdated: Boolean(password) };
+    if (!isSupabaseConfigured) throw new Error('Modo demostración: no hay una contraseña real que actualizar.');
     const { error } = await supabase.auth.updateUser({ password });
     if (error) throw error;
   },
 
   signOut: async () => {
-    if (supabase) await supabase.auth.signOut();
+    if (supabase) { const { error } = await supabase.auth.signOut(); if (error) throw error; }
     else localStorage.removeItem(DEMO_USER);
     set({ session: null, user: null, favorites: readGuest(GUEST_FAVORITES), watchlist: readGuest(GUEST_WATCHLIST), seriesWatchlist: readGuest(GUEST_SERIES_WATCHLIST) });
   },
@@ -228,11 +228,13 @@ export const useStore = create((set, get) => ({
       writeGuest(key, next);
       return;
     }
-    const movieId = await Catalog.resolveDatabaseId(movie);
-    if (!movieId) throw new Error('Esta película todavía no está disponible en la colección.');
-    const { error } = await supabase.from(table).upsert({ user_id: userId, movie_id: movieId }, { onConflict: 'user_id,movie_id' });
-    if (error) {
-      set({ [type]: current });
+    try {
+      const movieId = await Catalog.resolveDatabaseId(movie);
+      if (!movieId) throw new Error('Esta película todavía no está disponible en la colección.');
+      const { error } = await supabase.from(table).upsert({ user_id: userId, movie_id: movieId }, { onConflict: 'user_id,movie_id' });
+      if (error) throw error;
+    } catch (error) {
+      set((state) => ({ [type]: state[type].filter((item) => String(item.id) !== String(movie.id)) }));
       throw error;
     }
   },
@@ -249,19 +251,27 @@ export const useStore = create((set, get) => ({
       writeGuest(key, next);
       return;
     }
-    const databaseId = await Catalog.resolveDatabaseId(target || { id: movieId });
-    const { error } = await supabase.from(table).delete().eq('user_id', userId).eq('movie_id', databaseId);
-    if (error) {
-      set({ [type]: current });
+    try {
+      const databaseId = await Catalog.resolveDatabaseId(target || { id: movieId });
+      if (!databaseId) throw new Error('No pudimos identificar esta película.');
+      const { error } = await supabase.from(table).delete().eq('user_id', userId).eq('movie_id', databaseId);
+      if (error) throw error;
+    } catch (error) {
+      set((state) => ({ [type]: target && !state[type].some((item) => String(item.id) === String(movieId)) ? [...state[type], target] : state[type] }));
       throw error;
     }
   },
 
-  addFavorite: (movie) => get().addToCollection('favorites', movie),
-  removeFavorite: (movieId) => get().removeFromCollection('favorites', movieId),
+  collectionAction: async (operation) => {
+    set({ collectionError: '' });
+    try { await operation(); return true; }
+    catch { set({ collectionError: 'No se pudo guardar el cambio. Revisa tu conexión o inicia sesión de nuevo.' }); return false; }
+  },
+  addFavorite: (movie) => get().collectionAction(() => get().addToCollection('favorites', movie)),
+  removeFavorite: (movieId) => get().collectionAction(() => get().removeFromCollection('favorites', movieId)),
   isFavorite: (movieId) => get().favorites.some((movie) => String(movie.id) === String(movieId)),
-  addToWatchlist: (movie) => get().addToCollection('watchlist', movie),
-  removeFromWatchlist: (movieId) => get().removeFromCollection('watchlist', movieId),
+  addToWatchlist: (movie) => get().collectionAction(() => get().addToCollection('watchlist', movie)),
+  removeFromWatchlist: (movieId) => get().collectionAction(() => get().removeFromCollection('watchlist', movieId)),
   isInWatchlist: (movieId) => get().watchlist.some((movie) => String(movie.id) === String(movieId)),
   addSeriesToWatchlist: async (series) => {
     const current = get().seriesWatchlist;

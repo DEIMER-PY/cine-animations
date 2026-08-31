@@ -28,7 +28,13 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.cinema-home')).toHaveAttribute('data-catalog-ready', 'true', { timeout: 30000 });
+  await page.locator('.editorial-scene').last().waitFor({ timeout: 20000 });
   await capture(page, 'screening-hero.png');
+  await page.getByRole('button', { name: 'VER TRAILER', exact: true }).click();
+  await page.locator('.trailer-handoff').waitFor({ timeout: 30000 });
+  await capture(page, 'screening-trailer.png', { note: 'Live TMDB trailer candidate; external link, no iframe or video playback' });
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   for (const [selector, filename] of [
     ['.cinematic-spotlight', 'screening-spotlight.png'],
     ['.cinema-explorer', 'editorial-explorer.png'],
@@ -74,6 +80,7 @@ try {
   const mobile = await browser.newPage({ ...devices['Pixel 7'], reducedMotion: 'reduce' });
   await mobile.goto(baseURL, { waitUntil: 'domcontentloaded' });
   await expect(mobile.locator('.cinema-home')).toHaveAttribute('data-catalog-ready', 'true', { timeout: 30000 });
+  await mobile.locator('.editorial-scene').last().waitFor({ timeout: 20000 });
   await capture(mobile, 'screening-mobile.png');
   await mobile.goto(`${baseURL}/cartelera`, { waitUntil: 'domcontentloaded' });
   await mobile.locator('.showtime-pill').first().click();

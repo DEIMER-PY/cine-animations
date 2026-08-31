@@ -3,7 +3,8 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 async function apiFetch(endpoint, params = {}) {
-  const remoteProxy = SUPABASE_URL && SUPABASE_KEY;
+  // Local development must use the local allowlist/token, not a stale remote deployment.
+  const remoteProxy = import.meta.env.PROD && SUPABASE_URL && SUPABASE_KEY;
   const url = new URL(remoteProxy ? `${SUPABASE_URL}/functions/v1/tmdb-proxy` : '/api/tmdb', window.location.origin);
   url.searchParams.set('path', endpoint);
   url.searchParams.set('language', 'es-CO');

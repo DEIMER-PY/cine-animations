@@ -4,15 +4,17 @@
 
 ## Entorno y resultados
 
-Ejecución local del 30 de agosto de 2026 con Node.js 24.18, Windows y servidor Vite en 5173. Resultados obtenidos ejecutando los comandos, no inferidos del build.
+Ejecución local del 31 de agosto de 2026 con Node.js 24.18, Windows y servidor Vite en 5173. Catálogo TMDB real disponible; Supabase no configurado. Resultados obtenidos ejecutando los comandos, no inferidos del build.
 
 | Comprobación | Resultado |
 |---|---|
 | `npm run lint` | Correcto, sin errores ni advertencias |
-| `npm test` | 14 pruebas, 4 archivos, correctas |
+| `npm test` | 15 pruebas, 5 archivos, correctas |
 | Regresión nueva scroll/cursor | 9/9 correctas, tres dispositivos |
-| Suite Playwright completa | **63/63 correctas**, 5,6 minutos, tres dispositivos |
-| `npm run build` | Correcto; 2330 módulos, bundle principal 189,02 kB (62,80 kB gzip) |
+| Suite Playwright completa | **78/78 correctas**, 6,5 minutos, dos workers, tres dispositivos |
+| `npm run build` | Correcto; 2330 módulos, sin imports rotos tras retirar el reproductor |
+| Medios | 10/10 cabeceras WebP válidas, 1.195.088 bytes en total; cinco títulos en 960/1600 px y manifiesto ligado a ID/backdrop |
+| Documentación | 111 referencias locales, 33 SVG válidos y 14 capturas comprobados con `node scripts/check-docs.mjs` |
 
 ## Matriz de cobertura
 
@@ -22,7 +24,11 @@ Ejecución local del 30 de agosto de 2026 con Node.js 24.18, Windows y servidor 
 | Responsive | Chromium desktop, tablet 820×1180, Pixel 7, movimiento reducido y teclado | Firefox/WebKit configurados pero no ejecutados en esta iteración |
 | Descubrimiento | Navegación, búsqueda, géneros únicos, titulares, series, personas y watchlist anónima | Catálogo estable interceptado por Playwright |
 | Motion | Spotlight por clic/teclado, scroll libre, marquee avanza durante hover | No se certifican 60 FPS |
-| Trailers | Portal antes del iframe, foco/Escape, reproductor único, ocho segundos efectivos, pausa, autoplay bloqueado, ausente o restringido | Adaptador YouTube simulado; no SLA de vídeos externos |
+| Portada | Fotografía decodificada, selección manual, rotación a ocho segundos, pausa fuera de vista y movimiento reducido | Las pruebas usan imágenes controladas; capturas con catálogo real |
+| Trailers | Portal, enlace del título confirmado, alternativa en la misma pestaña, foco/Escape, ausencia de iframe/SDK/Cosmos, búsqueda honesta sin candidato | Se verifica navegación al enlace real, no reproducción ni disponibilidad permanente en YouTube |
+| Colecciones | Favoritos y listas de películas/series: agregar, persistir al recargar, abrir desde cuenta y quitar; rollback al fallar guardado | Almacenamiento local E2E; errores remotos controlados en unitarias |
+| Acceso | Login, retorno, persistencia demo, logout, registro con confirmación y recuperación sin envío ficticio | No se envían correos ni se autentica una cuenta Supabase real |
+| Filtros | Año + idioma combinados, búsqueda sin tildes, puntuación, formato y limpieza | Catálogo controlado con fechas, idiomas y puntuaciones diferentes |
 | Compra | Asientos, escaleras decorativas, ticket previo, confirmación y entrada en cuenta | Identidad y persistencia demo, sin pagos reales |
 | Unidad | Precios, estados, temporizador, límite, normalización, prioridad de trailers, colección aislada | No prueba concurrente contra Postgres remoto |
 
@@ -53,7 +59,9 @@ node scripts/capture-readme.mjs
 
 `CAPTURE_URL` permite cambiar el origen. El script usa contextos aislados, espera contenido e imágenes con un límite temporal, respeta movimiento reducido y cierra el navegador. El catálogo procede de las APIs configuradas; las imágenes cambian cuando cambia la cartelera. Las pantallas de checkout y ticket bloquean REST/Auth de Supabase y usan datos demo locales. No modifican reservas ni cuentas remotas.
 
-El [manifiesto](images/capture-manifest.json) registra archivos, rutas, viewports y fecha. `screening-trailer.png` procede de la comprobación anterior del reproductor real; no se regenera ni se presenta como prueba nueva de reproducción. Las capturas son evidencia visual, no golden snapshots con comparación de píxeles.
+El [manifiesto](images/capture-manifest.json) registra catorce capturas, rutas, viewports y fecha. `screening-trailer.png` muestra el portal actual con enlace externo; no representa reproducción incrustada. Las capturas son evidencia visual, no golden snapshots con comparación de píxeles.
+
+La revisión visual incluyó portada de escritorio, Pixel 7 y portal de trailer. El enlace de continuación en la misma pestaña se probó con un candidato real de TMDB y navegó a su URL de YouTube. No se extrajo ni descargó vídeo. El generador WebP usa únicamente imágenes de TMDB y no expone el token privado.
 
 ## Pendiente antes de producción
 

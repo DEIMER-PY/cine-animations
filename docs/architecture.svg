@@ -30,9 +30,9 @@
       <text x="64" y="524">Proxy privado → TMDB</text><text x="448" y="524">Postgres + RLS + Realtime</text><text x="832" y="524">Watchlist · Favoritos</text>
     </g>
     <g fill="#b0aab5" font-size="13">
-      <text x="64" y="248">React Router / GSAP / Motion / Tailwind</text><text x="448" y="248">COP · 8 asientos · hold de 10 minutos</text><text x="832" y="248">Explorar sin cuenta · guardar al entrar</text>
+      <text x="64" y="248">React Router / GSAP / Motion / Tailwind</text><text x="448" y="248">COP · 8 asientos · hold de 10 minutos</text><text x="832" y="248">Explorar y guardar sin cuenta</text>
       <text x="64" y="390">Normalización + caché de trailers</text><text x="448" y="390">Revalidación y bloqueo transaccional</text><text x="832" y="390">Sesión · retorno a la función original</text>
-      <text x="64" y="414">YouTube visible, sin capas por encima</text><text x="448" y="414">Wrappers públicos / funciones privadas</text><text x="832" y="414">Fusión de listas locales y remotas</text>
+      <text x="64" y="414">WebP editorial / trailers externos</text><text x="448" y="414">Wrappers públicos / funciones privadas</text><text x="832" y="414">Fusión de listas locales y remotas</text>
       <text x="64" y="550">Vite dev / Edge Function prod</text><text x="448" y="550">Disponibilidad por función + usuario</text><text x="832" y="550">Historial / reseñas / series_watchlist</text>
       <text x="64" y="574">TMDB_TOKEN nunca entra al bundle</text><text x="448" y="574">Demo local ≠ garantía multiusuario</text><text x="832" y="574">Migraciones remotas por desplegar</text>
     </g>
